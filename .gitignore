@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+.Python
+*.egg-info/
+.eggs/
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# Virtual envs
+venv/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 项目特定
+data/history.db
+data/history.db-journal
+*.log
+build/
+dist/
+!build/.gitkeep
+!dist/.gitkeep
+
+# 临时文件
+*.tmp
+*.bak
