@@ -21,6 +21,7 @@ from flask import Flask
 from backend.config import Config, TestConfig
 from backend.api.errors import register_error_handlers
 from backend.api.meta import bp as meta_bp
+from backend.api.data import bp as data_bp
 
 
 def create_app(testing=False):
@@ -52,7 +53,8 @@ def create_app(testing=False):
 
     # 蓝图注册
     app.register_blueprint(meta_bp)
-    # 后续 Task 会追加: data_bp, units_bp, calculations.*
+    app.register_blueprint(data_bp)
+    # 后续 Task 会追加: units_bp, calculations.*
 
     # 根路径
     @app.route('/')
