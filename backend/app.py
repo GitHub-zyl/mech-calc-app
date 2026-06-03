@@ -22,6 +22,9 @@ from backend.config import Config, TestConfig
 from backend.api.errors import register_error_handlers
 from backend.api.meta import bp as meta_bp
 from backend.api.data import bp as data_bp
+from backend.api.units import bp as units_bp
+from backend.api.calculations.transmission import bp as transmission_bp
+from backend.api.calculations.shaft_system import bp as shaft_system_bp
 
 
 def create_app(testing=False):
@@ -54,7 +57,9 @@ def create_app(testing=False):
     # 蓝图注册
     app.register_blueprint(meta_bp)
     app.register_blueprint(data_bp)
-    # 后续 Task 会追加: units_bp, calculations.*
+    app.register_blueprint(units_bp)
+    app.register_blueprint(transmission_bp)
+    app.register_blueprint(shaft_system_bp)
 
     # 根路径
     @app.route('/')
