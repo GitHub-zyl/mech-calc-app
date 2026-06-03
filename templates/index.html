@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>机械设计常用计算表</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div id="app">
+  <!-- 顶栏 -->
+  <header id="header">
+    <h1>⚙ 机械设计常用计算表</h1>
+    <span class="subtitle">基于《机械设计常用计算表.xlsx》</span>
+  </header>
+
+  <div id="main">
+    <!-- 侧边导航 -->
+    <nav id="sidebar">
+      <div id="nav-search">
+        <input type="text" id="nav-filter" placeholder="🔍 搜索计算器..." oninput="filterNav()">
+      </div>
+      <ul id="nav-list"></ul>
+    </nav>
+
+    <!-- 内容区 -->
+    <main id="content">
+      <div id="welcome">
+        <h2>欢迎使用机械设计常用计算表</h2>
+        <p>从左侧选择一个计算器开始，或搜索关键词快速定位。</p>
+        <div class="quick-links">
+          <div class="ql-category" onclick="navigateTo('gear-basic')">
+            <span class="ql-icon">⚙</span>
+            <span>齿轮参数</span>
+          </div>
+          <div class="ql-category" onclick="navigateTo('spring-compression')">
+            <span class="ql-icon">〰️</span>
+            <span>弹簧计算</span>
+          </div>
+          <div class="ql-category" onclick="navigateTo('thread-metric')">
+            <span class="ql-icon">🔩</span>
+            <span>螺纹计算</span>
+          </div>
+          <div class="ql-category" onclick="navigateTo('chain-sprocket')">
+            <span class="ql-icon">⛓</span>
+            <span>链轮参数</span>
+          </div>
+          <div class="ql-category" onclick="navigateTo('material-search')">
+            <span class="ql-icon">📦</span>
+            <span>材料查询</span>
+          </div>
+          <div class="ql-category" onclick="navigateTo('gear-motor')">
+            <span class="ql-icon">🔌</span>
+            <span>电机选型</span>
+          </div>
+          <div class="ql-category" onclick="navigateTo('belt-vbelt')">
+            <span class="ql-icon">🔗</span>
+            <span>三角皮带</span>
+          </div>
+          <div class="ql-category" onclick="navigateTo('cam-profile')">
+            <span class="ql-icon">🥏</span>
+            <span>凸轮设计</span>
+          </div>
+          <div class="ql-category" onclick="navigateTo('press-blanking')">
+            <span class="ql-icon">🔨</span>
+            <span>冲裁力计算</span>
+          </div>
+          <div class="ql-category" onclick="navigateTo('tolerance-fit')">
+            <span class="ql-icon">📐</span>
+            <span>公差配合</span>
+          </div>
+        </div>
+        <div class="welcome-footer">
+          <p>数据来源：155个工作表 · 15大类机械计算</p>
+        </div>
+      </div>
+
+      <!-- 各计算器面板 -->
+      <div id="calculator-panels"></div>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/static/js/app.js"></script>
+<script src="/static/js/app-ext.js"></script>
+<script src="/static/js/app-ext2.js"></script>
+<script src="/static/js/app-i18n.js"></script>
+<script src="/static/js/app-lang.js"></script>
+<script src="/static/js/app-fix.js"></script>
+</body>
+</html>

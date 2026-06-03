@@ -1,0 +1,494 @@
+{
+  "计算": {
+    "en": "Calculate",
+    "ja": "計算"
+  },
+  "计算结果": {
+    "en": "Result",
+    "ja": "計算結果"
+  },
+  "公式示例": {
+    "en": "Formula Example",
+    "ja": "計算例"
+  },
+  "知识": {
+    "en": "Knowledge",
+    "ja": "知識"
+  },
+  "复制": {
+    "en": "Copy",
+    "ja": "コピー"
+  },
+  "公式": {
+    "en": "Formula",
+    "ja": "計算式"
+  },
+  "参数": {
+    "en": "Parameters",
+    "ja": "パラメータ"
+  },
+  "关闭": {
+    "en": "Close",
+    "ja": "閉じる"
+  },
+  "暂无知识": {
+    "en": "No knowledge available",
+    "ja": "知識がありません"
+  },
+  "欢迎使用机械设计常用计算表": {
+    "en": "Welcome to Mechanical Design Calculator",
+    "ja": "機械設計計算表へようこそ"
+  },
+  "填写参数后点击计算": {
+    "en": "Fill parameters and calculate",
+    "ja": "パラメータを入力して計算"
+  },
+  "计算历史": {
+    "en": "Calculation History",
+    "ja": "計算履歴"
+  },
+  "清除历史": {
+    "en": "Clear History",
+    "ja": "履歴消去"
+  },
+  "导出CSV": {
+    "en": "Export CSV",
+    "ja": "CSV出力"
+  },
+  "基于《机械设计常用计算表.xlsx》": {
+    "en": "Based on Mechanical Design Calculator.xlsx",
+    "ja": "機械設計計算表.xlsxに基づく"
+  },
+  "材料数据": {
+    "en": "Materials",
+    "ja": "材料データ"
+  },
+  "齿轮传动": {
+    "en": "Gear Drive",
+    "ja": "歯車伝動"
+  },
+  "弹簧": {
+    "en": "Spring",
+    "ja": "ばね"
+  },
+  "螺纹/紧固": {
+    "en": "Thread / Fastener",
+    "ja": "ねじ/締結"
+  },
+  "链传动": {
+    "en": "Chain Drive",
+    "ja": "チェーン伝動"
+  },
+  "带传动": {
+    "en": "Belt Drive",
+    "ja": "ベルト伝動"
+  },
+  "凸轮/分割器": {
+    "en": "Cam / Indexer",
+    "ja": "カム/割り出し"
+  },
+  "公差配合": {
+    "en": "Tolerance / Fit",
+    "ja": "公差/はめあい"
+  },
+  "冲压钣金": {
+    "en": "Stamping / Sheet Metal",
+    "ja": "プレス/板金"
+  },
+  "液压系统": {
+    "en": "Hydraulic System",
+    "ja": "油圧システム"
+  },
+  "联轴器/密封": {
+    "en": "Coupling / Seal",
+    "ja": "継手/シール"
+  },
+  "电机常识": {
+    "en": "Motor Knowledge",
+    "ja": "モーター知識"
+  },
+  "材料力学": {
+    "en": "Strength of Materials",
+    "ja": "材料力学"
+  },
+  "工具": {
+    "en": "Tools",
+    "ja": "ツール"
+  },
+  "运动学": {
+    "en": "Kinematics",
+    "ja": "運動学"
+  },
+  "转动": {
+    "en": "Rotation",
+    "ja": "回転"
+  },
+  "振动": {
+    "en": "Vibration",
+    "ja": "振動"
+  },
+  "热传导": {
+    "en": "Heat Transfer",
+    "ja": "熱伝導"
+  },
+  "流体": {
+    "en": "Fluid Mechanics",
+    "ja": "流体力学"
+  },
+  "轮系": {
+    "en": "Gear Trains",
+    "ja": "歯車列"
+  },
+  "飞轮/制动": {
+    "en": "Flywheel / Brake",
+    "ja": "フライホイール/ブレーキ"
+  },
+  "材料查询": {
+    "en": "Material Search",
+    "ja": "材料検索"
+  },
+  "齿轮基本参数": {
+    "en": "Gear Parameters",
+    "ja": "歯車基本パラメータ"
+  },
+  "齿轮啮合计算": {
+    "en": "Gear Mesh",
+    "ja": "歯車かみ合い計算"
+  },
+  "电机选型计算": {
+    "en": "Motor Selection",
+    "ja": "モーター選定"
+  },
+  "齿条传动计算": {
+    "en": "Rack & Pinion",
+    "ja": "ラック＆ピニオン"
+  },
+  "压缩弹簧计算": {
+    "en": "Compression Spring",
+    "ja": "圧縮ばね"
+  },
+  "公制螺纹计算": {
+    "en": "Metric Thread",
+    "ja": "メートルねじ"
+  },
+  "攻丝底孔": {
+    "en": "Tap Drill",
+    "ja": "タップ下穴"
+  },
+  "螺栓扭矩计算": {
+    "en": "Bolt Torque",
+    "ja": "ボルトトルク"
+  },
+  "链轮参数": {
+    "en": "Sprocket Parameters",
+    "ja": "スプロケットパラメータ"
+  },
+  "链条长度计算": {
+    "en": "Chain Length",
+    "ja": "チェーン長さ計算"
+  },
+  "输送链张力": {
+    "en": "Conveyor Tension",
+    "ja": "コンベヤ張力"
+  },
+  "三角皮带计算": {
+    "en": "V-Belt Drive",
+    "ja": "Vベルト伝動"
+  },
+  "同步带计算": {
+    "en": "Timing Belt",
+    "ja": "タイミングベルト"
+  },
+  "HTD圆弧齿": {
+    "en": "HTD Timing Belt",
+    "ja": "HTDタイミングベルト"
+  },
+  "凸轮轮廓计算": {
+    "en": "Cam Profile",
+    "ja": "カム輪郭計算"
+  },
+  "分割器选型": {
+    "en": "Indexer Selection",
+    "ja": "割り出し装置選定"
+  },
+  "分度盘计算": {
+    "en": "Indexing Plate",
+    "ja": "割り出し盤計算"
+  },
+  "冲裁力计算": {
+    "en": "Blanking Force",
+    "ja": "抜き力計算"
+  },
+  "V型弯曲力": {
+    "en": "V-Bending Force",
+    "ja": "V曲げ力"
+  },
+  "U型弯曲力": {
+    "en": "U-Bending Force",
+    "ja": "U曲げ力"
+  },
+  "剪切力计算": {
+    "en": "Shear Force",
+    "ja": "せん断力"
+  },
+  "压印力计算": {
+    "en": "Embossing Force",
+    "ja": "エンボス力"
+  },
+  "公差配合计算": {
+    "en": "Fit Tolerance",
+    "ja": "はめあい公差"
+  },
+  "轴公差计算": {
+    "en": "Shaft Tolerance",
+    "ja": "軸公差"
+  },
+  "孔公差计算": {
+    "en": "Hole Tolerance",
+    "ja": "穴公差"
+  },
+  "管路压损": {
+    "en": "Pipe Pressure Loss",
+    "ja": "配管圧力損失"
+  },
+  "液压冲击": {
+    "en": "Hydraulic Shock",
+    "ja": "油圧衝撃"
+  },
+  "蓄能器选型": {
+    "en": "Accumulator",
+    "ja": "アキュムレータ"
+  },
+  "油箱热平衡": {
+    "en": "Tank Heat Balance",
+    "ja": "タンク熱平衡"
+  },
+  "齿式联轴器": {
+    "en": "Gear Coupling",
+    "ja": "歯車継手"
+  },
+  "万向联轴器": {
+    "en": "Universal Joint",
+    "ja": "ユニバーサルジョイント"
+  },
+  "O型圈沟槽": {
+    "en": "O-Ring Groove",
+    "ja": "Oリング溝"
+  },
+  "同步转速": {
+    "en": "Synchronous Speed",
+    "ja": "同期速度"
+  },
+  "扭矩/电流": {
+    "en": "Torque & Current",
+    "ja": "トルク/電流"
+  },
+  "电机常识速查": {
+    "en": "Motor Knowledge",
+    "ja": "モーター知識"
+  },
+  "截面惯性矩": {
+    "en": "Section Properties",
+    "ja": "断面特性"
+  },
+  "立柱稳定性": {
+    "en": "Column Stability",
+    "ja": "柱の安定"
+  },
+  "焊缝强度": {
+    "en": "Weld Strength",
+    "ja": "溶接強度"
+  },
+  "键强度校核": {
+    "en": "Key Strength",
+    "ja": "キー強度"
+  },
+  "销强度校核": {
+    "en": "Pin Strength",
+    "ja": "ピン強度"
+  },
+  "过盈配合": {
+    "en": "Interference Fit",
+    "ja": "しまりばめ"
+  },
+  "压入力": {
+    "en": "Press Fit Force",
+    "ja": "圧入力"
+  },
+  "单位换算": {
+    "en": "Unit Converter",
+    "ja": "単位換算"
+  },
+  "离心力": {
+    "en": "Centrifugal Force",
+    "ja": "遠心力"
+  },
+  "动量/能量": {
+    "en": "Momentum / Energy",
+    "ja": "運動量/エネルギー"
+  },
+  "螺旋传动": {
+    "en": "Lead Screw",
+    "ja": "ねじ送り"
+  },
+  "行星轮系": {
+    "en": "Planetary Gear",
+    "ja": "遊星歯車"
+  },
+  "飞轮储能": {
+    "en": "Flywheel Energy",
+    "ja": "フライホイール"
+  },
+  "理想气体": {
+    "en": "Ideal Gas",
+    "ja": "理想気体"
+  },
+  "伯努利": {
+    "en": "Bernoulli Eq.",
+    "ja": "ベルヌーイ"
+  },
+  "热膨胀": {
+    "en": "Thermal Expansion",
+    "ja": "熱膨張"
+  },
+  "弹簧质量振动": {
+    "en": "Spring-Mass Vibration",
+    "ja": "ばね-質量振動"
+  },
+  "扭振/临界转速": {
+    "en": "Torsional Vibration",
+    "ja": "ねじり振動"
+  },
+  "分度圆直径": {
+    "en": "Pitch Diameter",
+    "ja": "ピッチ円直径"
+  },
+  "齿顶圆直径": {
+    "en": "Tip Diameter",
+    "ja": "歯先円直径"
+  },
+  "齿根圆直径": {
+    "en": "Root Diameter",
+    "ja": "歯底円直径"
+  },
+  "基圆直径": {
+    "en": "Base Circle Dia.",
+    "ja": "基礎円直径"
+  },
+  "齿顶高": {
+    "en": "Addendum",
+    "ja": "歯たけ"
+  },
+  "齿根高": {
+    "en": "Dedendum",
+    "ja": "歯末のたけ"
+  },
+  "全齿高": {
+    "en": "Whole Depth",
+    "ja": "全歯たけ"
+  },
+  "齿距": {
+    "en": "Circular Pitch",
+    "ja": "ピッチ"
+  },
+  "齿厚": {
+    "en": "Tooth Thickness",
+    "ja": "歯厚"
+  },
+  "模数": {
+    "en": "Module",
+    "ja": "モジュール"
+  },
+  "齿数": {
+    "en": "Teeth",
+    "ja": "歯数"
+  },
+  "变位系数": {
+    "en": "Mod. Coefficient",
+    "ja": "転位係数"
+  },
+  "传动比": {
+    "en": "Ratio",
+    "ja": "伝達比"
+  },
+  "输入扭矩": {
+    "en": "Input Torque",
+    "ja": "入力トルク"
+  },
+  "输出扭矩": {
+    "en": "Output Torque",
+    "ja": "出力トルク"
+  },
+  "刚度": {
+    "en": "Stiffness",
+    "ja": "剛性"
+  },
+  "最大切应力": {
+    "en": "Max Shear Stress",
+    "ja": "最大せん断応力"
+  },
+  "安全系数": {
+    "en": "Safety Factor",
+    "ja": "安全率"
+  },
+  "变形量": {
+    "en": "Deflection",
+    "ja": "変形量"
+  },
+  "中径": {
+    "en": "Pitch Diameter",
+    "ja": "有効径"
+  },
+  "小径": {
+    "en": "Minor Diameter",
+    "ja": "谷の径"
+  },
+  "螺距": {
+    "en": "Pitch",
+    "ja": "ピッチ"
+  },
+  "预紧力": {
+    "en": "Preload",
+    "ja": "予締め力"
+  },
+  "拧紧扭矩": {
+    "en": "Tightening Torque",
+    "ja": "締付けトルク"
+  },
+  "弹性模量": {
+    "en": "Elastic Modulus",
+    "ja": "弾性係数"
+  },
+  "泊松比": {
+    "en": "Poisson's Ratio",
+    "ja": "ポアソン比"
+  },
+  "密度": {
+    "en": "Density",
+    "ja": "密度"
+  },
+  "抗拉强度": {
+    "en": "Tensile Strength",
+    "ja": "引張強さ"
+  },
+  "屈服强度": {
+    "en": "Yield Strength",
+    "ja": "降伏点"
+  },
+  "配合类型": {
+    "en": "Fit Type",
+    "ja": "はめあい種類"
+  },
+  "最大间隙": {
+    "en": "Max Clearance",
+    "ja": "最大すきま"
+  },
+  "最小间隙": {
+    "en": "Min Clearance",
+    "ja": "最小すきま"
+  },
+  "最大过盈": {
+    "en": "Max Interference",
+    "ja": "最大しめしろ"
+  }
+}
