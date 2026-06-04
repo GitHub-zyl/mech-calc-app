@@ -25,6 +25,13 @@ from backend.api.data import bp as data_bp
 from backend.api.units import bp as units_bp
 from backend.api.calculations.transmission import bp as transmission_bp
 from backend.api.calculations.shaft_system import bp as shaft_system_bp
+from backend.api.calculations.fasteners import bp as fasteners_bp
+from backend.api.calculations.fluid import bp as fluid_bp
+from backend.api.calculations.misc import bp as misc_bp
+from backend.api.compat import bp as compat_bp
+from backend.api.history import bp as history_bp
+from backend.api.formulas import bp as formulas_bp
+from backend.api.p2_reference import bp as p2_reference_bp
 
 
 def create_app(testing=False):
@@ -54,12 +61,27 @@ def create_app(testing=False):
         # 测试或首次启动时数据可能不存在, 跳过
         pass
 
+    # 初始化历史数据库 (SQLite)
+    try:
+        from backend.database import init_db
+        init_db(cfg.HISTORY_DB)
+    except Exception as e:
+        # 数据库初始化失败不应阻塞服务启动
+        print(f'[!] 历史数据库初始化失败: {e}')
+
     # 蓝图注册
     app.register_blueprint(meta_bp)
     app.register_blueprint(data_bp)
     app.register_blueprint(units_bp)
     app.register_blueprint(transmission_bp)
     app.register_blueprint(shaft_system_bp)
+    app.register_blueprint(fasteners_bp)
+    app.register_blueprint(fluid_bp)
+    app.register_blueprint(misc_bp)
+    app.register_blueprint(p2_reference_bp)  # P2: 配合度/电机常识 (注册在 compat 之前, 优先匹配)
+    app.register_blueprint(compat_bp)
+    app.register_blueprint(history_bp)
+    app.register_blueprint(formulas_bp)
 
     # 根路径
     @app.route('/')
@@ -70,6 +92,16 @@ def create_app(testing=False):
             with open(idx, 'r', encoding='utf-8') as f:
                 return current_app.response_class(f.read(), mimetype='text/html')
         return '<h1>Template not found</h1>', 404
+
+    # 现代化 UI (Alpine.js)
+    @app.route('/modern')
+    def modern():
+        from flask import current_app
+        idx = Path(current_app.template_folder) / 'modern.html'
+        if idx.exists():
+            with open(idx, 'r', encoding='utf-8') as f:
+                return current_app.response_class(f.read(), mimetype='text/html')
+        return '<h1>Modern template not found</h1>', 404
 
     # data 静态文件 (与原 app.py 一致)
     @app.route('/data/<path:filename>')

@@ -30,3 +30,5 @@ class TestConfig(Config):
     """测试配置"""
     TESTING = True
     DEBUG = True
+    # 测试使用临时数据库 (由 conftest.py / app.py 在每次启动时重设)
+    HISTORY_DB = Path(__file__).resolve().parent.parent / 'data' / 'test_history.db'

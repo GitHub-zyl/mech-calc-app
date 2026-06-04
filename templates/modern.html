@@ -1,0 +1,157 @@
+<!--
+  modern.html - Alpine.js 驱动的新一代机械计算 UI
+
+  设计要点:
+  - 单一文件 + 单一 JS (app-modern.js)
+  - 数据驱动的计算器注册表 (CALCULATORS)
+  - 通过 /api/meta/categories 加载 13 大类分类树
+  - 通过 /api/calc/<cat>/<name> 调用计算 API
+  - 通过 /api/data/* 查询材料/常数
+  - 内置历史记录 (localStorage) - 计划在 Phase 2 升级为服务端持久化
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>机械设计常用计算表 · 现代化版</title>
+<link rel="stylesheet" href="/static/css/style.css">
+<style>
+  /* 现代化布局微调 */
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif; }
+  .modern-shell { display: flex; min-height: 100vh; }
+  .modern-aside { width: 240px; background: #1e293b; color: #e2e8f0; padding: 1rem; }
+  .modern-aside h1 { font-size: 1.05rem; margin: 0 0 1rem; color: #f8fafc; }
+  .modern-aside .cat-list { list-style: none; padding: 0; margin: 0; }
+  .modern-aside .cat-list li { padding: 0.5rem 0.75rem; border-radius: 0.375rem; cursor: pointer; transition: background .15s; }
+  .modern-aside .cat-list li:hover { background: #334155; }
+  .modern-aside .cat-list li.active { background: #3b82f6; color: #fff; }
+  .modern-main { flex: 1; padding: 1.5rem 2rem; background: #f8fafc; }
+  .modern-card { background: #fff; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 1rem; }
+  .modern-card h2 { margin-top: 0; font-size: 1.1rem; color: #1e293b; }
+  .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem 1rem; }
+  .form-grid label { font-size: 0.875rem; color: #475569; }
+  .form-grid input, .form-grid select { width: 100%; padding: 0.5rem; border: 1px solid #cbd5e1; border-radius: 0.375rem; }
+  .btn-primary { background: #3b82f6; color: #fff; padding: 0.5rem 1rem; border: 0; border-radius: 0.375rem; cursor: pointer; }
+  .btn-primary:hover { background: #2563eb; }
+  .result-pre { background: #0f172a; color: #e2e8f0; padding: 1rem; border-radius: 0.375rem; overflow: auto; font-size: 0.85rem; }
+  .meta-tag { display: inline-block; padding: 0.125rem 0.5rem; background: #dbeafe; color: #1e40af; border-radius: 1rem; font-size: 0.75rem; }
+  [x-cloak] { display: none !important; }
+</style>
+</head>
+<body x-data="mechApp()" x-init="init()" x-cloak>
+
+<div class="modern-shell">
+  <aside class="modern-aside">
+    <h1>⚙ 机械计算表</h1>
+    <div style="font-size:0.8rem; opacity:.6; margin-bottom:0.75rem;">现代化版 v2.1</div>
+    <input type="text" x-model="search" placeholder="🔍 搜索计算器"
+           style="width:100%; padding:0.4rem; border:0; border-radius:0.375rem; margin-bottom:0.75rem;">
+    <ul class="cat-list">
+      <template x-for="cat in filteredCategories()" :key="cat.id">
+        <li :class="{ active: cat.id === activeCategory }"
+            @click="activeCategory = cat.id; activeCalc = null"
+            x-text="cat.name_zh"></li>
+      </template>
+    </ul>
+    <div style="margin-top: 1.5rem; font-size:0.75rem; opacity:.5;">
+      <a href="/" style="color: #cbd5e1; text-decoration: none;">← 返回旧版 UI</a>
+    </div>
+  </aside>
+
+  <main class="modern-main">
+    <!-- 分类首页 -->
+    <template x-if="!activeCategory">
+      <div class="modern-card">
+        <h2>欢迎使用机械设计常用计算表</h2>
+        <p style="color:#64748b;">共 <span x-text="categories.length"></span> 大类, 覆盖齿轮/轴承/液压/公差/材料/单位换算等机械工程常用计算。</p>
+        <p style="color:#64748b; font-size:0.875rem;">从左侧选择分类开始使用。</p>
+      </div>
+    </template>
+
+    <!-- 分类下的计算器列表 -->
+    <template x-if="activeCategory && !activeCalc">
+      <div class="modern-card">
+        <h2 x-text="currentCategoryName()"></h2>
+        <p style="color:#64748b;">本分类下有以下计算器:</p>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:0.75rem;">
+          <template x-for="c in calculatorsInCategory()" :key="c.endpoint">
+            <div @click="activeCalc = c.id"
+                 style="padding:0.75rem; border:1px solid #e2e8f0; border-radius:0.375rem; cursor:pointer; transition: all .15s;"
+                 onmouseover="this.style.background='#f1f5f9'"
+                 onmouseout="this.style.background='#fff'">
+              <div style="font-weight:600;" x-text="c.title"></div>
+              <div style="font-size:0.8rem; color:#64748b;" x-text="c.description"></div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </template>
+
+    <!-- 具体计算器面板 -->
+    <template x-if="activeCalc">
+      <div>
+        <button @click="activeCalc = null" class="btn-primary" style="margin-bottom: 0.75rem;">← 返回</button>
+        <div class="modern-card">
+          <h2 x-text="currentCalc()?.title"></h2>
+          <p style="color:#64748b;" x-text="currentCalc()?.description"></p>
+          <form @submit.prevent="runCalc()">
+            <div class="form-grid">
+              <template x-for="f in currentCalc()?.fields || []" :key="f.name">
+                <label>
+                  <span x-text="f.label"></span>
+                  <input :type="f.type || 'text'" :step="f.step || 'any'"
+                         x-model.number="form[f.name]">
+                </label>
+              </template>
+            </div>
+            <button type="submit" class="btn-primary" style="margin-top: 1rem;" :disabled="loading">
+              <span x-show="!loading">计算</span>
+              <span x-show="loading">计算中...</span>
+            </button>
+            <span x-show="lastError" style="color:#dc2626; margin-left:1rem;" x-text="lastError"></span>
+          </form>
+        </div>
+
+        <template x-if="result">
+          <div class="modern-card">
+            <h2>结果</h2>
+            <pre class="result-pre" x-text="JSON.stringify(result, null, 2)"></pre>
+          </div>
+        </template>
+
+        <!-- 历史记录 -->
+        <template x-if="history.length">
+          <div class="modern-card">
+            <h2>本次会话历史 (最近 <span x-text="history.length"></span> 条)</h2>
+            <table style="width:100%; border-collapse: collapse; font-size:0.875rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid #e2e8f0;">
+                  <th style="text-align:left; padding:0.5rem;">时间</th>
+                  <th style="text-align:left; padding:0.5rem;">计算器</th>
+                  <th style="text-align:left; padding:0.5rem;">输入</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="h in history.slice().reverse()" :key="h.ts">
+                  <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding:0.4rem; color:#64748b;" x-text="new Date(h.ts).toLocaleTimeString()"></td>
+                    <td style="padding:0.4rem;" x-text="h.calc"></td>
+                    <td style="padding:0.4rem; font-family: monospace;" x-text="JSON.stringify(h.input)"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </template>
+      </div>
+    </template>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- 实际部署时请把 alpinejs 放到本地, 避免 CDN 失效 -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+<script src="/static/js/app-modern.js"></script>
+</body>
+</html>
