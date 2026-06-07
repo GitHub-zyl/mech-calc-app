@@ -1,6 +1,7 @@
 """蜗杆传动计算"""
 import math
 
+
 def worm_geometry(m, z1, z2, q=10):
     d1 = m * q
     d2 = m * z2
@@ -16,6 +17,7 @@ def worm_geometry(m, z1, z2, q=10):
         'ratio': round(z2/z1, 2),
         'formula': 'd1=mq, d2=mz2, lead_angle=atan(z1/q)'
     }
+
 
 def worm_efficiency(gamma_deg, fv=0.06):
     gamma = math.radians(gamma_deg)
