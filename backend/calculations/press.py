@@ -2,7 +2,7 @@
 冲裁 / 弯曲 / 冲压力计算模块
 参考：机械设计常用计算表 - 总冲裁力 / V型U型弯曲力 / 剪切力
 """
-import math
+
 
 def blanking_force(perimeter_mm, thickness_mm, shear_strength_mpa, k=1.3):
     """
@@ -36,9 +36,9 @@ def stripping_force(blanking_force_kN, material_type='steel'):
     """
     # 系数表
     coeff = {
-        'steel':   {'Kx': 0.04, 'Kt': 0.05, 'Kd': 0.06},
-        'aluminum': {'Kx': 0.06, 'Kt': 0.055, 'Kd': 0.07},
-        'copper':  {'Kx': 0.05, 'Kt': 0.04, 'Kd': 0.05},
+        'steel':   {'Kx': 0.04, 'Kt': 0.05, 'Kd': 0.06},  # noqa: E241
+        'aluminum': {'Kx': 0.06, 'Kt': 0.055, 'Kd': 0.07},  # noqa: E241
+        'copper':  {'Kx': 0.05, 'Kt': 0.04, 'Kd': 0.05},  # noqa: E241
     }
     c = coeff.get(material_type, coeff['steel'])
     

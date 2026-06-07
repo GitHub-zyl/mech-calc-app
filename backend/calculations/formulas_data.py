@@ -686,11 +686,11 @@ def search(query: str, category: Optional[str] = None) -> List[Dict[str, Any]]:
             result.append(f)
             continue
         # 匹配 name/id/tags
-        if (q in f['id'].lower() or
-            q in f['name_zh'].lower() or
-            q in f['name_en'].lower() or
-            q in f['formula'].lower() or
-            any(q in t.lower() for t in f.get('tags', []))):
+        if (q in f['id'].lower() or  # noqa: W504
+            q in f['name_zh'].lower() or  # noqa: W504
+            q in f['name_en'].lower() or  # noqa: W504
+            q in f['formula'].lower() or  # noqa: W504
+                any(q in t.lower() for t in f.get('tags', []))):
             result.append(f)
     _logger.info(
         f"[LOAD-END]   trigger=search elapsed={(time.perf_counter() - start) * 1000:.3f}ms "
@@ -774,7 +774,8 @@ def solve(fid: str, given: Dict[str, float]) -> Dict[str, Any]:
         parts = expr.split('=', 1)
         if len(parts) != 2:
             return {'ok': False, 'error': '公式格式错误 (无 =)'}
-        lhs_str, rhs_str = parts[0].strip(), parts[1].strip()
+        # lhs_str, rhs_str = parts[0].strip(), parts[1].strip()
+        rhs_str = parts[1].strip()
         rhs = eval(rhs_str, {'__builtins__': {}}, given_full)
         # 求解目标
         if target == _parse_vars_from_expr(expr)[0]:

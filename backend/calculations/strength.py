@@ -6,6 +6,7 @@ import math
 
 # ============ 截面惯性矩 / 抗弯截面系数 ============
 
+
 def section_properties(shape, params):
     """
     常用截面惯性矩 I 和抗弯截面系数 W
@@ -16,7 +17,7 @@ def section_properties(shape, params):
             'circle': 实心圆 {d}
             'tube': 空心圆管 {D, d}
             'square_tube': 方管 {B, H, b, h} 外B×H, 内b×h
-            'i_beam': 工字钢简化 {B, H, t, tw} 
+            'i_beam': 工字钢简化 {B, H, t, tw}
             't_section': T型截面 {B, H, t, tw}
         params: dict of dimensions (mm)
     
@@ -157,8 +158,8 @@ def column_stability_check(F_N, A_mm2, E_mpa, L_mm, I_mm4, mu=1.0, sigma_s_mpa=2
     Pcr = math.pi**2 * E_mpa * I_mm4 / (mu * L_mm)**2 if L_mm > 0 else 0
     n_stable = Pcr / F_N if F_N > 0 else 0  # 稳定安全系数
     
-    # 许用稳定应力
-    sigma_permissible = Pcr / (A_mm2 * safety) if A_mm2 > 0 else 0
+    # 许用稳定应力 (Pcr / (A * safety))
+    # sigma_permissible = Pcr / (A_mm2 * safety)
     
     return {
         'working_stress_mpa': round(sigma, 2),
@@ -228,7 +229,7 @@ def key_strength(T_Nmm, shaft_diameter_mm, key_width_mm, key_height_mm, key_leng
     h = key_height_mm
     l = key_length_mm
     b = key_width_mm
-    t = h / 2  # 键的接触高度 (近似)
+    # 键的接触高度 (近似): h / 2
     
     # 剪切应力 τ = 2T / (d·b·l)
     tau = 2 * T_Nmm / (d * b * l) if all([d, b, l]) else 0
@@ -347,12 +348,14 @@ def press_fit_force(shaft_diameter_mm, interference_um, hub_od_mm, length_mm,
         'length_mm': length_mm,
     }
 
+
 def rivet_strength(F_N, d_mm, t_min_mm, n=1, shear_planes=1):
     import math
     As = n * math.pi * d_mm**2 / 4
     tau = F_N * shear_planes / As if As > 0 else 0
     sigma_p = F_N / (n * d_mm * t_min_mm) if n * d_mm * t_min_mm > 0 else 0
     return {'shear_stress_mpa': round(tau, 2), 'bearing_stress_mpa': round(sigma_p, 2)}
+
 
 def adhesive_strength(F_N, width_mm, length_mm):
     A = width_mm * length_mm

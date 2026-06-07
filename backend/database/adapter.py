@@ -25,9 +25,7 @@ import logging
 import os
 import queue
 import threading
-import time
 from contextlib import contextmanager
-from typing import Optional, Dict, Any, List, Iterable
 
 _logger = logging.getLogger('backend.database.adapter')
 
@@ -247,7 +245,7 @@ class PostgreSQLAdapter(DBAdapter):
     def raw_conn(self):
         return self._pg_conn
 
-    def get_pool_stats(self) -> Dict[str, Any]:
+    def get_pool_stats(self) -> dict:
         """获取池监控指标 (用于 /api/history/stats 端点)."""
         if not self._engine:
             return {'enabled': False}
@@ -324,7 +322,7 @@ def create_adapter():
     return SQLiteAdapter(DB_PATH)
 
 
-def get_engine_pool_stats() -> Dict[str, Any]:
+def get_engine_pool_stats() -> dict:
     """获取当前后端的池统计信息."""
     if DB_BACKEND == 'postgresql':
         try:

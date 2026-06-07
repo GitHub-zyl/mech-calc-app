@@ -2,7 +2,6 @@
 滚动轴承详细选型计算模块
 参考：GB/T 6391-2010(ISO 281:2007), SKF综合型录
 """
-import math
 
 
 def calc_bearing_life_modified(C=None, P=None, n=None, a1=1.0, a23=1.0, bearing_type='ball'):

@@ -1,5 +1,5 @@
 """轴承寿命计算 L10"""
-import math
+
 
 def bearing_life(C_kN, P_kN, n_rpm, bearing_type='ball'):
     p = 3.0 if bearing_type == 'ball' else 10/3
@@ -13,11 +13,13 @@ def bearing_life(C_kN, P_kN, n_rpm, bearing_type='ball'):
         'formula': 'L10 = (C/P)^p x 10^6 / (60n)'
     }
 
+
 def equivalent_load(Fr_kN, Fa_kN, X=0.56, Y=1.5):
     P = X * Fr_kN + Y * Fa_kN
     return {'radial_load_kN': Fr_kN, 'axial_load_kN': Fa_kN,
-        'X_factor': X, 'Y_factor': Y,
-        'equivalent_load_kN': round(P, 3)}
+            'X_factor': X, 'Y_factor': Y,
+            'equivalent_load_kN': round(P, 3)}
+
 
 def bearing_static_check(C0_kN, P0_kN, safety=1.0):
     S0 = C0_kN / P0_kN if P0_kN > 0 else 0

@@ -5,6 +5,7 @@ import math
 
 # ============ 热传导 ============
 
+
 def conduction(Q=None, k=None, A=None, dT=None, L=None):
     """
     热传导  Q = k·A·ΔT/L
@@ -44,10 +45,14 @@ def convection(Q=None, h=None, A=None, dT=None):
     if known != 3:
         return {'error': '请输入其中3个参数'}
     
-    if Q is None: Q = h * A * dT
-    elif h is None: h = Q / (A * dT) if A * dT != 0 else 0
-    elif A is None: A = Q / (h * dT) if h * dT != 0 else 0
-    elif dT is None: dT = Q / (h * A) if h * A != 0 else 0
+    if Q is None:
+        Q = h * A * dT
+    elif h is None:
+        h = Q / (A * dT) if A * dT != 0 else 0
+    elif A is None:
+        A = Q / (h * dT) if h * dT != 0 else 0
+    elif dT is None:
+        dT = Q / (h * A) if h * A != 0 else 0
     
     return {
         'heat_flow_W': round(Q, 4) if Q else 0,

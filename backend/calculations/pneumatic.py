@@ -51,7 +51,7 @@ def calc_cylinder_force(D=None, d_rod=None, p=None, action_type='extend'):
 
 
 def calc_cylinder_air_consumption(D=None, stroke=None, p=None,
-                                   n_cycle=None, action_type='double'):
+                                  n_cycle=None, action_type='double'):
     """
     气缸耗气量计算 (ANR 工况: 20°C, 101.3kPa)
     
@@ -126,9 +126,8 @@ def calc_pipe_flow_rate(d=None, p1=None, p2=None, L=None, T=293):
     if dp <= 0:
         return {'error': 'p1 必须大于 p2'}
 
-    # 简化工程公式 (压缩空气管道经验公式)
-    # Q (m³/min ANR) ≈ 112 × d^2.655 × √(Δp / L)
-    Q_est = 112 * (d**2.655) * math.sqrt(dp / L) / 1000 if L > 0 else 0  # 修正为合理范围
+    # Q (m³/min ANR) ≈ 112 × d^2.655 × √(Δp / L) (经验公式, 仅参考)
+    # 以下使用达西-魏斯巴赫公式替代
 
     # 更合理的估算：基于达西-魏斯巴赫
     rho = 1.2  # 空气密度 kg/m³ (标准工况)

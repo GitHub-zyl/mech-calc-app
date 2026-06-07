@@ -11,7 +11,7 @@ def beam_section_inertia(shape, **dims):
     计算截面惯性矩 I (mm⁴) 和截面模量 W (mm³)
     
     参数:
-        shape: 
+        shape:
             'circle' - 圆形 {d}
             'hollow_circle' - 空心圆 {D, d}
             'rect' - 矩形 {b, h}

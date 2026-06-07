@@ -6,6 +6,7 @@ import math
 
 # ============ 联轴器 ============
 
+
 def coupling_gear_torque(power_kw, rpm, safety=1.5):
     """
     齿式联轴器扭矩校核
@@ -149,11 +150,11 @@ def oring_groove(section_diam_mm):
 # ============ 圆弧齿同步带 HTD ============
 
 HTD_BELTS = {
-    '3M':  {'pitch': 3, 'height': 2.4, 'min_teeth': 10},
-    '5M':  {'pitch': 5, 'height': 3.8, 'min_teeth': 14},
-    '8M':  {'pitch': 8, 'height': 6.0, 'min_teeth': 22},
-    '14M': {'pitch': 14, 'height': 10.0, 'min_teeth': 28},
-    '20M': {'pitch': 20, 'height': 13.0, 'min_teeth': 34},
+    '3M':  {'pitch': 3, 'height': 2.4, 'min_teeth': 10},  # noqa: E241
+    '5M':  {'pitch': 5, 'height': 3.8, 'min_teeth': 14},  # noqa: E241
+    '8M':  {'pitch': 8, 'height': 6.0, 'min_teeth': 22},  # noqa: E241
+    '14M': {'pitch': 14, 'height': 10.0, 'min_teeth': 28},  # noqa: E241
+    '20M': {'pitch': 20, 'height': 13.0, 'min_teeth': 34},  # noqa: E241
 }
 
 

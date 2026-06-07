@@ -27,8 +27,9 @@ TEST_SCRIPT = BACKEND_DIR / "scripts" / "pre_commit_tests.py"
 def main() -> int:
     # 检查是否在项目根目录
     if not TEST_SCRIPT.exists():
-        print(f"❌ 错误: 找不到测试脚本 {TEST_SCRIPT}", file=sys.stderr)
-        print(f"   请确认项目结构, 或重新运行 install_pre_commit_hook.py",
+        print("❌ 错误: 找不到测试脚本", file=sys.stderr)
+        print(f"   {TEST_SCRIPT}", file=sys.stderr)
+        print("   请确认项目结构, 或重新运行 install_pre_commit_hook.py",
               file=sys.stderr)
         return 1
 
@@ -39,7 +40,7 @@ def main() -> int:
     print("=" * 60)
     print("  Git Pre-Commit Hook: 自动化测试")
     print("=" * 60)
-    print(f"  触发原因: 即将执行 git commit")
+    print("  触发原因: 即将执行 git commit")
     print(f"  执行脚本: {TEST_SCRIPT.relative_to(PROJECT_ROOT)}")
     print("=" * 60)
     print()

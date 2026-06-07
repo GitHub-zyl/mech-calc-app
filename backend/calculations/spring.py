@@ -4,6 +4,7 @@
 """
 import math
 
+
 def coil_spring_compression(d, Dm, n, G=79000, material='弹簧钢'):
     """
     圆柱螺旋压缩弹簧计算
@@ -24,8 +25,8 @@ def coil_spring_compression(d, Dm, n, G=79000, material='弹簧钢'):
     elif material == '铜合金':
         G = 45000
     
-    C = Dm / d                     # 旋绕比
-    k = G * d**4 / (8 * Dm**3 * n) # 刚度 N/mm
+    C = Dm / d  # 旋绕比
+    k = G * d**4 / (8 * Dm**3 * n)  # 刚度 N/mm
     
     return {
         'wire_diameter': d,

@@ -88,10 +88,10 @@ H7_K6_TEST_CASES = [
             "fit_type": "过渡配合",
             "ES": 18.56,       # H7 @ 50: i≈1.86, IT7=10*i≈18.56
             "EI": 0.0,
-            "es": 2.0,         # k6 @ 50: 基本偏差 es=2
-            "ei": -10.99,      # k6 @ 50: ei=es-IT6=2-12.99=-10.99
-            "Xmax": 29.55,     # ES-ei = 18.56-(-10.99) = 29.55
-            "Xmin": -2.0,      # EI-es = 0-2 = -2
+            "es": 14.99,       # k6 @ 50: 基本偏差+IT6=2+12.99=14.99
+            "ei": 2.0,         # k6 @ 50: 基本偏差 ei=2
+            "Xmax": 16.56,     # ES-ei = 18.56-2 = 16.56
+            "Xmin": -14.99,    # EI-es = 0-14.99 = -14.99
         },
     },
     {
@@ -102,10 +102,10 @@ H7_K6_TEST_CASES = [
             "fit_type": "过渡配合",
             "ES": 15.61,       # H7 @ 30: IT7≈15.61
             "EI": 0.0,
-            "es": 2.0,         # k6 @ 30: es=2
-            "ei": -8.93,       # k6 @ 30: ei=2-10.93=-8.93
-            "Xmax": 24.54,     # 15.61 - (-8.93) = 24.54
-            "Xmin": -2.0,      # 0 - 2 = -2
+            "es": 12.93,       # k6 @ 30: 基本偏差+IT6=2+10.93=12.93
+            "ei": 2.0,         # k6 @ 30: 基本偏差 ei=2
+            "Xmax": 13.61,     # 15.61 - 2 = 13.61
+            "Xmin": -12.93,    # 0 - 12.93 = -12.93
         },
     },
     {
@@ -116,10 +116,10 @@ H7_K6_TEST_CASES = [
             "fit_type": "过渡配合",
             "ES": 21.73,       # H7 @ 80: IT7≈21.73
             "EI": 0.0,
-            "es": 3.0,         # k6 @ 80: es=3
-            "ei": -12.21,      # k6 @ 80: ei=3-15.21=-12.21
-            "Xmax": 33.94,     # 21.73 - (-12.21) = 33.94
-            "Xmin": -3.0,
+            "es": 18.21,       # k6 @ 80: 基本偏差+IT6=3+15.21=18.21
+            "ei": 3.0,         # k6 @ 80: 基本偏差 ei=3
+            "Xmax": 18.73,     # 21.73 - 3 = 18.73
+            "Xmin": -18.21,    # 0 - 18.21 = -18.21
         },
     },
 ]
@@ -133,10 +133,10 @@ H7_M6_TEST_CASES = [
             "fit_type": "过渡配合",
             "ES": 18.56,
             "EI": 0.0,
-            "es": 9.0,         # m6 @ 50: es=9
-            "ei": -3.99,       # m6 @ 50: ei=9-12.99=-3.99
-            "Xmax": 22.55,     # 18.56 - (-3.99) = 22.55
-            "Xmin": -9.0,
+            "es": 21.99,       # m6 @ 50: 基本偏差+IT6=9+12.99=21.99
+            "ei": 9.0,         # m6 @ 50: 基本偏差 ei=9
+            "Xmax": 9.56,      # 18.56 - 9 = 9.56
+            "Xmin": -21.99,    # 0 - 21.99 = -21.99
         },
     },
     {
@@ -147,10 +147,10 @@ H7_M6_TEST_CASES = [
             "fit_type": "过渡配合",
             "ES": 15.61,
             "EI": 0.0,
-            "es": 8.0,         # m6 @ 30: es=8
-            "ei": -2.93,       # m6 @ 30: ei=8-10.93=-2.93
-            "Xmax": 18.54,
-            "Xmin": -8.0,
+            "es": 18.93,       # m6 @ 30: 基本偏差+IT6=8+10.93=18.93
+            "ei": 8.0,         # m6 @ 30: 基本偏差 ei=8
+            "Xmax": 7.61,      # 15.61 - 8 = 7.61
+            "Xmin": -18.93,    # 0 - 18.93 = -18.93
         },
     },
     {
@@ -161,10 +161,10 @@ H7_M6_TEST_CASES = [
             "fit_type": "过渡配合",
             "ES": 21.73,
             "EI": 0.0,
-            "es": 11.0,        # m6 @ 80: es=11
-            "ei": -4.21,       # m6 @ 80: ei=11-15.21=-4.21
-            "Xmax": 25.94,
-            "Xmin": -11.0,
+            "es": 26.21,       # m6 @ 80: 基本偏差+IT6=11+15.21=26.21
+            "ei": 11.0,        # m6 @ 80: 基本偏差 ei=11
+            "Xmax": 10.73,     # 21.73 - 11 = 10.73
+            "Xmin": -26.21,    # 0 - 26.21 = -26.21
         },
     },
 ]
@@ -178,10 +178,10 @@ H7_N6_TEST_CASES = [
             "fit_type": "过渡配合",
             "ES": 18.56,
             "EI": 0.0,
-            "es": 17.0,        # n6 @ 50: es=17
-            "ei": 4.01,        # n6 @ 50: ei=17-12.99=4.01
-            "Xmax": 14.55,     # 18.56 - 4.01 = 14.55
-            "Xmin": -17.0,
+            "es": 29.99,       # n6 @ 50: 基本偏差+IT6=17+12.99=29.99
+            "ei": 17.0,        # n6 @ 50: 基本偏差 ei=17
+            "Xmax": 1.56,      # 18.56 - 17 = 1.56
+            "Xmin": -29.99,    # 0 - 29.99 = -29.99
         },
     },
     {
@@ -192,10 +192,10 @@ H7_N6_TEST_CASES = [
             "fit_type": "过渡配合",
             "ES": 15.61,
             "EI": 0.0,
-            "es": 15.0,        # n6 @ 30: es=15
-            "ei": 4.07,        # n6 @ 30: ei=15-10.93=4.07
-            "Xmax": 11.54,
-            "Xmin": -15.0,
+            "es": 25.93,       # n6 @ 30: 基本偏差+IT6=15+10.93=25.93
+            "ei": 15.0,        # n6 @ 30: 基本偏差 ei=15
+            "Xmax": 0.61,      # 15.61 - 15 = 0.61
+            "Xmin": -25.93,    # 0 - 25.93 = -25.93
         },
     },
     {
@@ -206,10 +206,10 @@ H7_N6_TEST_CASES = [
             "fit_type": "过渡配合",
             "ES": 21.73,
             "EI": 0.0,
-            "es": 20.0,        # n6 @ 80: es=20
-            "ei": 4.79,        # n6 @ 80: ei=20-15.21=4.79
-            "Xmax": 16.94,
-            "Xmin": -20.0,
+            "es": 35.21,       # n6 @ 80: 基本偏差+IT6=20+15.21=35.21
+            "ei": 20.0,        # n6 @ 80: 基本偏差 ei=20
+            "Xmax": 1.73,      # 21.73 - 20 = 1.73
+            "Xmin": -35.21,    # 0 - 35.21 = -35.21
         },
     },
 ]
@@ -292,9 +292,18 @@ def compute_expected_values(nominal_mm, hole_spec, shaft_spec):
     ES = EI + it_hole
 
     # 轴 es, ei
-    es = _get_basic_deviation(nominal_mm, shaft_spec[0].lower(), is_hole=False)
+    # B1 fix: k~zc 轴的基本偏差为下偏差(ei), a~j 轴的基本偏差为上偏差(es)
+    shaft_letter = shaft_spec[0].lower()
+    basic_dev = _get_basic_deviation(nominal_mm, shaft_letter, is_hole=False)
     it_shaft = _it_tolerance(nominal_mm, int(shaft_spec[1:]))
-    ei = es - it_shaft
+    if shaft_letter >= 'k':
+        # k~zc: 基本偏差为下偏差 ei
+        ei = basic_dev
+        es = ei + it_shaft
+    else:
+        # a~j: 基本偏差为上偏差 es
+        es = basic_dev
+        ei = es - it_shaft
 
     Xmax = ES - ei
     Xmin = EI - es
@@ -654,15 +663,15 @@ def main():
 
     # 1. 主要测试用例 (H7/k6, H7/m6, H7/n6)
     for case in ALL_TEST_CASES:
-        print(f"  ▶ {case['id']}: {case['scenario']}")
+        print(f"  > {case['id']}: {case['scenario']}")
         passed, details = run_test_case(case)
         all_results.append(details)
 
         if "error" in details:
-            print(f"    ❌ ERROR: {details['error']}")
+            print(f"    [FAIL] ERROR: {details['error']}")
         else:
             r = details["result"]
-            verdict = "✅" if passed else "❌"
+            verdict = "[PASS]" if passed else "[FAIL]"
             print(f"    {verdict} fit_type={r['fit_type']} "
                   f"Xmax={r['max_clearance_um']} Xmin={r['min_clearance_um']} "
                   f"({details['elapsed_ms']:.2f}ms)")
@@ -673,21 +682,21 @@ def main():
     print()
     for case in EDGE_CASES:
         case_with_family = dict(case, family="EDGE")
-        print(f"  ▶ {case['id']}: {case['scenario']}")
+        print(f"  > {case['id']}: {case['scenario']}")
         passed, details = run_test_case(case_with_family)
         all_results.append(details)
 
         if "error" in details:
-            print(f"    {'✅' if passed else '❌'} {details.get('error', '')}")
+            print(f"    {'[PASS]' if passed else '[FAIL]'} {details.get('error', '')}")
         else:
             r = details["result"]
             if "fit_type" in r:
-                verdict = "✅" if passed else "❌"
+                verdict = "[PASS]" if passed else "[FAIL]"
                 print(f"    {verdict} fit_type={r['fit_type']} ({details['elapsed_ms']:.2f}ms)")
             else:
                 # error case (expected_error=True)
                 err_msg = r.get("error", "unknown")
-                verdict = "✅" if passed else "❌"
+                verdict = "[PASS]" if passed else "[FAIL]"
                 print(f"    {verdict} 正确传播 error: '{err_msg}' ({details['elapsed_ms']:.2f}ms)")
         print()
 
@@ -718,13 +727,13 @@ def main():
     txt_path = report_dir / "h7_transition_fits_report.txt"
     txt_content = build_text_report(all_results, total_elapsed, summary)
     txt_path.write_text(txt_content, encoding="utf-8")
-    print(f"  ✓ 文本报告:   {txt_path}")
+    print(f"  [OK] 文本报告:   {txt_path}")
 
     # Markdown 报告
     md_path = report_dir / "h7_transition_fits_report.md"
     md_content = build_markdown_report(all_results, total_elapsed, summary)
     md_path.write_text(md_content, encoding="utf-8")
-    print(f"  ✓ Markdown 报告: {md_path}")
+    print(f"  [OK] Markdown 报告: {md_path}")
 
     # JSON 报告
     json_path = report_dir / "h7_transition_fits_report.json"
@@ -738,7 +747,7 @@ def main():
         json.dumps(json_data, ensure_ascii=False, indent=2, default=str),
         encoding="utf-8",
     )
-    print(f"  ✓ JSON 报告:   {json_path}")
+    print(f"  [OK] JSON 报告:   {json_path}")
     print()
 
     return summary["exit_code"]

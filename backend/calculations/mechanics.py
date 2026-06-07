@@ -5,6 +5,7 @@ import math
 
 # ============ 1. 运动学 (Kinematics) ============
 
+
 def linear_motion(v0=0, a=0, t=0, s=None):
     """
     匀变速直线运动
@@ -211,8 +212,10 @@ def mass_inertia(shape, mass_kg=None, density_kgm3=None, **dims):
           cone, rectangular_block, thick_wall_tube
     """
     def calc_mass(vol):
-        if mass_kg: return mass_kg
-        if density_kgm3: return density_kgm3 * vol
+        if mass_kg:
+            return mass_kg
+        if density_kgm3:
+            return density_kgm3 * vol
         return 1.0  # 默认单位质量
     
     shape = shape.lower()
@@ -321,7 +324,7 @@ def mass_inertia(shape, mass_kg=None, density_kgm3=None, **dims):
         # 长方体(过质心) I = 1/12·m(a²+b²)
         a = dims.get('a', dims.get('w', 0))
         b = dims.get('b', dims.get('h', 0))
-        c = dims.get('c', dims.get('d', 0)) 
+        c = dims.get('c', dims.get('d', 0))
         V = a * b * c
         m = calc_mass(V)
         result['I_x_kgm2'] = round(m * (b*b + c*c) / 12, 6)
@@ -344,7 +347,8 @@ def mass_inertia(shape, mass_kg=None, density_kgm3=None, **dims):
     else:
         return {'error': f'未知形状: {shape}'}
     
-    if mass_kg: result['mass_kg'] = mass_kg
+    if mass_kg:
+        result['mass_kg'] = mass_kg
     return result
 
 
@@ -360,7 +364,8 @@ def parallel_axis_theorem(I_cm, mass, d):
 
 def radius_of_gyration(I, mass):
     """回转半径 i = √(I/m)"""
-    if mass <= 0: return {'error': '质量必须大于0'}
+    if mass <= 0:
+        return {'error': '质量必须大于0'}
     i = math.sqrt(I / mass)
     return {
         'inertia_kgm2': I, 'mass_kg': mass,
@@ -447,7 +452,7 @@ def simple_pendulum(L_m, g=9.81):
     T = 2 * math.pi * math.sqrt(L_m / g) if L_m > 0 else 0
     f = 1 / T if T > 0 else 0
     return {
-        'length_m': L_m, 
+        'length_m': L_m,
         'period_s': round(T, 4),
         'frequency_Hz': round(f, 4),
     }

@@ -14,7 +14,7 @@
 本蓝图保留至 Phase 2 末删除.
 """
 from flask import Blueprint, request
-from backend.api.responses import success, error
+from backend.api.responses import success
 
 bp = Blueprint('compat', __name__)
 

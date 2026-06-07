@@ -6,6 +6,7 @@ import math
 
 # ============ 凸轮从动件运动规律 ============
 
+
 def cam_motion_uniform(beta, h, theta):
     """
     等速运动 (直线) 位移曲线
@@ -125,10 +126,10 @@ def cam_analysis(beta_deg, h, motion_type='sine'):
     
     # 特征值系数 (Cv, Ca)
     coeff = {
-        'sine':       {'Cv': 2.00, 'Ca': 6.28, 'desc': '正弦加速度 — 高速轻载，无冲击'},
-        'cosine':     {'Cv': 1.57, 'Ca': 4.93, 'desc': '余弦加速度 — 中高速，柔性冲击'},
-        'uniform':    {'Cv': 1.00, 'Ca': 0,    'desc': '等速 — 低速，刚性冲击'},
-        'modified_trapezoid': {'Cv': 1.76, 'Ca': 4.89, 'desc': '修正梯形 — 高速，综合性能好'},
+        'sine':       {'Cv': 2.00, 'Ca': 6.28, 'desc': '正弦加速度 — 高速轻载，无冲击'},  # noqa: E241
+        'cosine':     {'Cv': 1.57, 'Ca': 4.93, 'desc': '余弦加速度 — 中高速，柔性冲击'},  # noqa: E241
+        'uniform':    {'Cv': 1.00, 'Ca': 0,    'desc': '等速 — 低速，刚性冲击'},  # noqa: E241
+        'modified_trapezoid': {'Cv': 1.76, 'Ca': 4.89, 'desc': '修正梯形 — 高速，综合性能好'},  # noqa: E241
     }
     c = coeff.get(motion_type, coeff['sine'])
     
@@ -160,7 +161,7 @@ def indexer_selection(load_torque_nm, index_angle_deg, dwell_angle_deg,
         num_stations: 工位数
         safety: 安全系数
     """
-    total_angle = index_angle_deg + dwell_angle_deg
+    # total_angle = index_angle_deg + dwell_angle_deg
     
     # 出力轴扭矩（考虑安全系数）
     T_out = load_torque_nm * safety

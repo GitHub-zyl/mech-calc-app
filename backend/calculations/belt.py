@@ -18,6 +18,7 @@ V_BELT_SECTIONS = {
     'Z': {'pitch_width': 8.5, 'height': 6.0, 'angle_deg': 40, 'mass_kg_m': 0.06},
 }
 
+
 def vbelt_calc(section, power_kw, n1_rpm, ratio, center_distance_mm):
     """
     三角皮带传动计算
@@ -92,12 +93,12 @@ def vbelt_length_to_center(section, L, d1, d2):
 # ============ 同步带（周节制）============
 
 SYNCHRONOUS_BELTS = {
-    'MXL': {'pitch': 2.032, 'max_width': 6.4},
-    'XL':  {'pitch': 5.080, 'max_width': 9.5},
-    'L':   {'pitch': 9.525, 'max_width': 25.4},
-    'H':   {'pitch': 12.700, 'max_width': 76.2},
-    'XH':  {'pitch': 22.225, 'max_width': 101.6},
-    'XXH': {'pitch': 31.750, 'max_width': 127.0},
+    'MXL': {'pitch': 2.032, 'max_width': 6.4},  # noqa: E241
+    'XL':  {'pitch': 5.080, 'max_width': 9.5},  # noqa: E241
+    'L':   {'pitch': 9.525, 'max_width': 25.4},  # noqa: E241
+    'H':   {'pitch': 12.700, 'max_width': 76.2},  # noqa: E241
+    'XH':  {'pitch': 22.225, 'max_width': 101.6},  # noqa: E241
+    'XXH': {'pitch': 31.750, 'max_width': 127.0},  # noqa: E241
 }
 
 

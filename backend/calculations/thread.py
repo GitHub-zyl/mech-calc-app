@@ -2,7 +2,7 @@
 螺纹/紧固件计算模块
 参考：机械设计常用计算表 - 螺纹中小径计算 / 公制螺纹
 """
-import math
+
 
 def metric_thread_basic(nominal_d, pitch):
     """
@@ -19,8 +19,8 @@ def metric_thread_basic(nominal_d, pitch):
     d2 = nominal_d - 0.649519 * pitch   # 中径
     d1 = nominal_d - 1.082532 * pitch   # 小径（外螺纹）
     D1 = nominal_d - 1.082532 * pitch   # 小径（内螺纹）
-    D2 = nominal_d - 0.649519 * pitch   # 中径（内螺纹）
-    D = nominal_d                       # 内螺纹大径
+    # D2 = nominal_d - 0.649519 * pitch  # 中径（内螺纹）
+    # D = nominal_d                       # 内螺纹大径
     
     return {
         'nominal_diameter': nominal_d,
@@ -48,7 +48,11 @@ def tap_drill_diameter(thread_spec):
         return {'error': f'无法解析螺纹规格: {thread_spec}。格式示例: M6, M8x1'}
     
     d = float(m.group(1))
-    p = float(m.group(2)) if m.group(2) else (0.8 if d <= 3 else (1.0 if d <= 6 else (1.25 if d <= 10 else (1.5 if d <= 16 else 2.0))))
+    p = float(m.group(2)) if m.group(2) else (
+        0.8 if d <= 3 else (
+            1.0 if d <= 6 else (
+                1.25 if d <= 10 else (
+                    1.5 if d <= 16 else 2.0))))
     
     result = metric_thread_basic(d, p)
     drill = result['minor_diameter_internal']
