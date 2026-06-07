@@ -4,6 +4,7 @@
 """
 import math
 
+
 def spur_gear_params(m, z, alpha_deg=20, ha_star=1.0, c_star=0.25, x=0):
     """
     标准/变位直齿圆柱齿轮基本参数计算
@@ -149,14 +150,16 @@ def gear_bending_strength(Ft_N, b_mm, m_mm, YF=2.5, YS=1.6, Yb=1.0, K=1.3):
     sigma_F = K * Ft_N * YF * YS * Yb / (b_mm * m_mm) if b_mm * m_mm > 0 else 0
     return {'bending_stress_mpa': round(sigma_F, 2)}
 
+
 def gear_contact_strength(Ft_N, b_mm, d1_mm, u, K=1.3, ZE=189.8, ZH=2.5, Ze=0.87):
     import math
     sigma_H = ZE * ZH * Ze * math.sqrt(2 * K * Ft_N / (b_mm * d1_mm) * (u + 1) / u) if b_mm * d1_mm * u > 0 else 0
     return {'contact_stress_mpa': round(sigma_H, 2)}
+
 
 def gear_force(torque_Nm, d_mm, alpha_deg=20, beta_deg=0):
     import math
     Ft = 2 * torque_Nm * 1000 / d_mm if d_mm > 0 else 0
     Fr = Ft * math.tan(math.radians(alpha_deg)) / math.cos(math.radians(beta_deg))
     Fa = Ft * math.tan(math.radians(beta_deg))
-    return {'tangential_N': round(Ft,1), 'radial_N': round(Fr,1), 'axial_N': round(Fa,1)}
+    return {'tangential_N': round(Ft, 1), 'radial_N': round(Fr, 1), 'axial_N': round(Fa, 1)}
