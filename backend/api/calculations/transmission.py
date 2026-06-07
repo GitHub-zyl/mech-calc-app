@@ -5,7 +5,7 @@ URL 前缀: /api/calc
 """
 from flask import Blueprint, request
 from backend.api.responses import success, error
-from backend.utils.convert import safe_float, safe_int
+from backend.utils.convert import safe_float
 
 # 计算函数导入
 from backend.calculations.gear import (
@@ -15,10 +15,10 @@ from backend.calculations.gear import (
 from backend.calculations.mechanics import planetary_gear, compound_gear_train
 from backend.calculations.worm import worm_geometry, worm_efficiency
 from backend.calculations.belt import vbelt_calc, synchronous_belt_calc
-from backend.calculations.chain import (
+from backend.calculations.chain import (  # noqa: F401
     roller_chain_params, chain_length, chain_power_capacity, conveyor_chain_tension,
 )
-from backend.calculations.cam import (
+from backend.calculations.cam import (  # noqa: F401
     cam_motion_uniform, cam_motion_sine, cam_motion_cosine,
     cam_motion_modified_trapezoid, cam_profile_points, cam_analysis,
     indexer_selection, divider_general,
@@ -52,8 +52,11 @@ def _params(*keys, defaults=None):
 @bp.post('/gear/spur')
 def gear_spur():
     """直齿轮几何参数"""
-    m, z, alpha, ha, c, x = _params('module', 'teeth', 'pressure_angle', 'addendum_coef', 'clearance_coef', 'modification_coefficient',
-                                    defaults={'pressure_angle': 20, 'addendum_coef': 1.0, 'clearance_coef': 0.25, 'modification_coefficient': 0})
+    m, z, alpha, ha, c, x = _params(
+        'module', 'teeth', 'pressure_angle', 'addendum_coef',
+        'clearance_coef', 'modification_coefficient',
+        defaults={'pressure_angle': 20, 'addendum_coef': 1.0,
+                  'clearance_coef': 0.25, 'modification_coefficient': 0})
     if m is None or z is None:
         return error('请填写模数 (module) 和齿数 (teeth)', code=400)
     return success(spur_gear_params(m, int(z), alpha, ha, c, x))
