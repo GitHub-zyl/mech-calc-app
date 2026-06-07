@@ -86,7 +86,7 @@ def calc_band_brake_torque(F1=None, mu=None, theta_deg=None, r=None):
 
 
 def calc_clutch_energy(W=None, J=None, omega1=None, omega2=None,
-                        m_drum=None, c_specific=500):
+                       m_drum=None, c_specific=500):
     """
     离合器接合滑磨功与温升计算
     
