@@ -37,6 +37,11 @@ dist/
 !build/.gitkeep
 !dist/.gitkeep
 
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+
 # 临时测试报告和数据
 coldstart_*.json
 concurrent_*.json
