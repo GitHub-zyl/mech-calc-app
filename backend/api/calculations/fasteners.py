@@ -8,10 +8,10 @@ from backend.utils.convert import safe_float
 from backend.calculations.thread import (
     metric_thread_basic, tap_drill_diameter, bolt_preload_torque,
 )
-from backend.calculations.weld import (
+from backend.calculations.weld import (  # noqa: F401
     calc_fillet_weld_stress, calc_butt_weld_stress,
 )
-from backend.calculations.strength import (
+from backend.calculations.strength import (  # noqa: F401
     section_properties, column_buckling, column_stability_check,
     weld_fillet_stress, weld_butt_stress,
     key_strength, pin_strength, interference_fit,
@@ -78,7 +78,7 @@ def weld_fillet():
         return error('请填写 F_N / weld_leg_mm / weld_length_mm', code=400)
     num = int(safe_float(d.get('num_welds', 2)) or 2)
     return success(weld_fillet_stress(F_N=F, weld_leg_mm=h,
-                                       weld_length_mm=Lw, num_welds=num))
+                                      weld_length_mm=Lw, num_welds=num))
 
 
 @bp.post('/weld/butt')
