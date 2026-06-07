@@ -1,0 +1,33 @@
+[flake8]
+max-line-length = 120
+statistics = True
+
+# 排除不需要检查的目录
+exclude =
+    .git,
+    __pycache__,
+    venv,
+    .venv,
+    build,
+    dist,
+    *.egg-info,
+    docs,
+
+# 对测试/脚本文件放宽规则
+per-file-ignores =
+    # 测试文件: 允许未使用导入、未使用变量、f-string无占位符
+    # 允许模块级导入不在顶部、缺少空格、行过长、缩进问题、运算符空格等
+    backend/tests/*: F401,F541,F841,F811,E402,E231,E241,E226,E501,E127,E128,E129,E302,E305,E306,E701,E741,W293,W391,W503,W504
+    backend/tests/**/*: F401,F541,F841,F811,E402,E231,E241,E226,E501,E127,E128,E129,E302,E305,E306,E701,E741,W293,W391,W503,W504
+    # test_all.py 是集成测试脚本, 数据字典中大量 E231/E501
+    backend/test_all.py: F401,F541,F841,E231,E241,E226,E501,E302,E305,E701,E741,W293,W391
+
+# 忽略的规则 (全局)
+# W293: 空白行含空格 (编辑器自动处理)
+# E741: 变量名歧义 (力学公式中 I 是惯量, 合理使用)
+# E226: 运算符缺少空格 (力学公式中 a**2 等写法常见)
+# C901: 复杂度警告 (Flask app 工厂函数复杂度较高是合理的)
+ignore = W293,E741,E226,C901
+
+# McCabe 复杂度
+max-complexity = 20
