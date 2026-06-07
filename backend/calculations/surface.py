@@ -2,7 +2,6 @@
 表面粗糙度与硬度换算模块
 参考：GB/T 1031-2009, GB/T 3505, ISO 4287, GB/T 1172, ASTM E140
 """
-import math
 
 
 def calc_roughness_convert(Ra=None):
@@ -87,7 +86,8 @@ def calc_hardness_convert(value=None, from_type='HB', to_type='HRC'):
         elif t == 'HV':
             return val  # 近似
         elif t == 'HRC':
-            if val <= 0: return 0
+            if val <= 0:
+                return 0
             # 反向公式: HB = (HRC + 14.6) / 0.143
             return (val + 14.6) / 0.143
         elif t == 'HRB':
