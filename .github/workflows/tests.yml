@@ -378,7 +378,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     permissions:
       contents: read
-      administrations: write
+      administration: write
     steps:
       - name: 检查分支保护是否已配置
         id: check
