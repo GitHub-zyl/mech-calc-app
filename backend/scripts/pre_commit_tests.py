@@ -432,6 +432,13 @@ def build_markdown_report(suite_results, total_elapsed, summary, env_info):
 # 主流程
 # ============================================================
 def main() -> int:
+    # 确保 stdout/stderr 使用 UTF-8 编码 (CI runner 可能使用 cp1252)
+    import io
+    if sys.stdout.encoding != 'utf-8':
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    if sys.stderr.encoding != 'utf-8':
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
     t_start = time.time()
 
     env_info = {
