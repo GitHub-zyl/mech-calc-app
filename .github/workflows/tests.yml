@@ -331,7 +331,7 @@ jobs:
     env:
       # 设为 '1' 启用故意失败模式, 验证 required check 是否阻断合并
       # 正常 CI 运行时保持 '0' (测试被跳过, job 成功)
-      REQUIRED_CHECK_VERIFY: '0'
+      REQUIRED_CHECK_VERIFY: '1'
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
