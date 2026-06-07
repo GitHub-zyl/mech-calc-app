@@ -4,7 +4,7 @@ URL 前缀: /api/calc
 """
 from flask import Blueprint, request
 from backend.api.responses import success, error
-from backend.utils.convert import safe_float, safe_int
+from backend.utils.convert import safe_float
 from backend.calculations.shaft import (
     calc_shaft_torsion, calc_shaft_combined, calc_shaft_fatigue, calc_critical_speed,
 )
