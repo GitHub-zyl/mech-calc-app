@@ -13,6 +13,8 @@ _logger = logging.getLogger(__name__)
 
 # IT基本公差  单位: μm
 # 标准公差因子 i = 0.45∛D + 0.001D (D为尺寸分段几何平均值, mm)
+
+
 def _std_tolerance_factor(D_mm):
     """计算标准公差因子 i (μm)"""
     if D_mm <= 500:
