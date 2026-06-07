@@ -10,7 +10,7 @@ Endpoints:
 from flask import Blueprint, request
 from backend.api.responses import success, error
 from backend.calculations.formulas_data import (
-    get_all, get_by_id, get_categories, search, get_related, solve,
+    get_by_id, get_categories, search, get_related, solve,
 )
 
 bp = Blueprint('formulas', __name__, url_prefix='/api/formulas')
