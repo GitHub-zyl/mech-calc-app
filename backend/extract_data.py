@@ -8,6 +8,7 @@ import os
 EXCEL_PATH = r'\\192.168.0.20\张有亮的个人云\研究用\机械相关计算\机械设计常用计算表.xlsx'
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 
+
 def to_num(v):
     """尝试转为数字"""
     if v is None:
@@ -16,6 +17,7 @@ def to_num(v):
         return float(v)
     except (ValueError, TypeError):
         return v
+
 
 def sheet_to_dict(ws, header_rows=1, key_col=0, val_col=1):
     """简单地将工作表转换为 {key: value} 字典"""
@@ -27,6 +29,7 @@ def sheet_to_dict(ws, header_rows=1, key_col=0, val_col=1):
             if key:
                 data[key] = to_num(val) if val is not None else None
     return data
+
 
 def extract_materials(ws):
     """提取常用工程材料属性"""
@@ -60,6 +63,7 @@ def extract_materials(ws):
         materials.append(entry)
     return materials
 
+
 def extract_steel_grades(ws):
     """提取七国钢材牌号对照"""
     steels = []
@@ -82,6 +86,7 @@ def extract_steel_grades(ws):
         steels.append(entry)
     return steels
 
+
 def extract_aluminum_grades(ws):
     """提取七国铝及铝合金牌号对照"""
     alums = []
@@ -102,6 +107,7 @@ def extract_aluminum_grades(ws):
         }
         alums.append(entry)
     return alums
+
 
 def extract_plastics(ws):
     """提取塑料材料性能"""
@@ -126,6 +132,7 @@ def extract_plastics(ws):
         }
         plastics.append(entry)
     return plastics
+
 
 def extract_thread_data(ws):
     """提取公制螺纹数据 (ISO 68格式)"""
@@ -168,7 +175,7 @@ def extract_thread_data(ws):
                         'external_minor_min': to_num(row[8]),
                     }
                     threads.append(entry)
-            except:
+            except Exception:
                 continue
     
     # 去重
@@ -198,7 +205,7 @@ def extract_imperial_thread(ws):
                 'minor_diameter_mm': to_num(row[4]),
             }
             threads.append(entry)
-        except:
+        except Exception:
             continue
     return threads
 
@@ -224,9 +231,10 @@ def extract_bearings_more(ws_deep, ws_thrust):
                         'outer_mm': float(row[2]) if row[2] else None,
                         'width_mm': float(row[3]) if row[3] else None,
                     })
-            except:
+            except Exception:
                 continue
     return bearings
+
 
 def extract_bearing_data(ws, bearing_type='deep_groove'):
     """提取轴承数据"""
@@ -248,6 +256,7 @@ def extract_bearing_data(ws, bearing_type='deep_groove'):
         except (ValueError, TypeError):
             continue
     return bearings
+
 
 def extract_oring_data():
     """提取O型圈沟槽数据"""
@@ -356,6 +365,7 @@ def main():
         json.dump(data, f, ensure_ascii=False, indent=2)
     print(f"\n数据已导出到: {output_path}")
     print(f"文件大小: {os.path.getsize(output_path) / 1024:.1f} KB")
+
 
 if __name__ == '__main__':
     main()
