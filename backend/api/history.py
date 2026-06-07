@@ -126,11 +126,14 @@ def delete_batch_view():
 
 @bp.get('/stats')
 def stats_view():
-    """GET /api/history/stats"""
-    return success({
+    """GET /api/history/stats - 历史统计 + 连接池监控 (统一端点)"""
+    from backend.database import history_db
+    data = {
         'total': count_records(),
         'by_category': stats_by_category(),
-    })
+        'pool': history_db.get_pool_stats() if history_db.ENABLE_CONN_POOL else None,
+    }
+    return success(data)
 
 
 @bp.get('/categories')

@@ -211,7 +211,10 @@ def calc_beam(beam_type=None, L=None, loads=None, E=None, I=None):
                 M_fixed = q * c * x_cg if L > 0 else 0
                 M_max = max(M_max, M_fixed)
                 V_max = max(V_max, V)
-                delta = q * c / (24 * EI) * (12*L**3 - 8*L**2*c + L**2*c/L) if EI > 0 else 0
+                # 悬臂梁均布载荷自由端挠度 (从固定端 x=0 到位置 b 的均布载荷 q)
+                # 标准公式: delta = q*b^2*(6*L^2 - 4*L*b + b^2) / (24*E*I)
+                # 其中 b 为载荷段长度, L 为梁全长
+                delta = q * c**2 * (6*L**2 - 4*L*c + c**2) / (24 * EI) if EI > 0 else 0
                 delta_max = max(delta_max, abs(delta))
                 details.append({
                     'type': '均布载荷', 'q_N_per_mm': q,

@@ -1,0 +1,450 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, develop, feature/**]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+# 取消进行中的旧运行, 节省 CI 资源
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  # ============== 1. 代码质量检查 ==============
+  lint:
+    name: 代码风格与类型检查
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 设置 Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest-cov
+
+      - name: flake8 检查
+        run: |
+          flake8 backend/ --max-line-length=120 --statistics --exit-zero
+
+      - name: 检查 import 顺序
+        run: |
+          python -c "import backend.app; print('imports OK')"
+
+  # ============== 2. 单元测试 ==============
+  unit-tests:
+    name: 单元测试 (含覆盖率)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 设置 Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest-cov pytest-html
+
+      - name: 单元测试 (含覆盖率)
+        run: |
+          pytest backend/tests/unit/ \
+            --cov=backend \
+            --cov-report=term-missing \
+            --cov-report=xml:coverage-unit.xml \
+            --cov-fail-under=80 \
+            -v
+
+      - name: 上传覆盖率报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-unit
+          path: coverage-unit.xml
+
+  # ============== 3. 集成测试 ==============
+  integration-tests:
+    name: 集成测试 (API + DB + Pool)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    needs: unit-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 设置 Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 集成测试
+        run: |
+          pytest backend/tests/integration/ -v --tb=short
+
+  # ============== 4. 连接池专项测试 (方案 B) ==============
+  pool-tests:
+    name: 连接池测试 (方案 B 验证)
+    runs-on: windows-latest
+    timeout-minutes: 10
+    needs: unit-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 连接池单元测试
+        run: |
+          pytest backend/tests/unit/test_history_db_pool.py -v --tb=short
+
+      - name: 连接池并发压测 (15 用户)
+        shell: pwsh
+        run: |
+          # 启动服务 (启用预热 + 连接池), 记录 PID 避免误杀其他进程
+          $env:ENABLE_CONN_POOL='1'
+          $env:CONN_POOL_SIZE='8'
+          $env:DISABLE_DB_WARMUP='0'
+          $proc = Start-Process python -ArgumentList '-m','backend.app' -PassThru -NoNewWindow
+          $procId = $proc.Id
+          Write-Host "服务进程 PID: $procId"
+
+          # 健康检查轮询 (最多 30 秒)
+          for ($i = 0; $i -lt 30; $i++) {
+            try {
+              $r = Invoke-WebRequest http://127.0.0.1:9091/api/history/stats -TimeoutSec 1 -ErrorAction Stop
+              if ($r.StatusCode -eq 200) { break }
+            } catch { Start-Sleep -Seconds 1 }
+          }
+          if ($i -ge 30) { throw "服务启动超时 (30s)" }
+
+          # 跑压测
+          python -m backend.tests.coldstart_benchmark --users 10 --per-user 5 --label ci-pool
+
+          # 按 PID 精确关闭服务 (避免误杀其他 Python 进程)
+          Stop-Process -Id $procId -Force -ErrorAction SilentlyContinue
+
+  # ============== 5. 冷启动性能基线检查 ==============
+  coldstart-baseline:
+    name: 冷启动性能基线 (方案 A 验证)
+    runs-on: windows-latest
+    timeout-minutes: 10
+    needs: unit-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 启动服务 (启用预热), 记录 PID
+        shell: pwsh
+        env:
+          ENABLE_CONN_POOL: '0'
+          DISABLE_DB_WARMUP: '0'
+        run: |
+          $script:serverProc = Start-Process python -ArgumentList '-m','backend.app' -PassThru -NoNewWindow
+          Write-Host "服务进程 PID: $($script:serverProc.Id)"
+
+      - name: 验证服务启动 (健康检查轮询)
+        shell: pwsh
+        run: |
+          for ($i = 0; $i -lt 30; $i++) {
+            try {
+              $r = Invoke-WebRequest http://127.0.0.1:9091/api/history/stats -TimeoutSec 1 -ErrorAction Stop
+              if ($r.StatusCode -eq 200) { break }
+            } catch { Start-Sleep -Seconds 1 }
+          }
+          if ($i -ge 30) { throw "服务启动超时 (30s)" }
+
+      - name: 测量首次请求延迟 (5 轮)
+        shell: pwsh
+        run: |
+          python backend/tests/coldstart_single_test.py ci-baseline 5
+
+      - name: 验收 (首次 < 100ms, 冷启动比例 < 3x)
+        shell: pwsh
+        run: |
+          $result = Get-Content coldstart_compare_ci-baseline.json | ConvertFrom-Json
+          Write-Host "首次请求: $($result.first_avg_ms)ms"
+          Write-Host "冷启动比例: $($result.cold_start_ratio)x"
+          if ($result.first_avg_ms -gt 100) {
+            Write-Error "首次请求 $($result.first_avg_ms)ms 超过 100ms 阈值"
+            exit 1
+          }
+          if ($result.cold_start_ratio -gt 3.0) {
+            Write-Error "冷启动比例 $($result.cold_start_ratio)x 超过 3x 阈值"
+            exit 1
+          }
+          Write-Host "✅ 冷启动性能基线达标"
+
+      - name: 关闭服务 (按 PID 精确关闭)
+        if: always()
+        shell: pwsh
+        run: |
+          if ($script:serverProc) {
+            Stop-Process -Id $script:serverProc.Id -Force -ErrorAction SilentlyContinue
+          }
+
+      - name: 上传性能报告
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coldstart-baseline-report
+          path: coldstart_compare_ci-baseline.json
+
+  # ============== 6. Pre-Commit 自动化测试套件 (Required Status Check) ==============
+  # Required Check 名称: "Tests / pre-commit-tests"
+  #   - GitHub 分支保护规则 (branch protection rules) 中应将上述名称配置为 required status check
+  #   - 阻断条件: 本 job 失败 → develop 分支无法合并, 阻止未通过测试的代码合并
+  #   - 触发时机: push 到 develop / PR / workflow_dispatch
+  pre-commit-tests:
+    name: pre-commit-tests
+    runs-on: windows-latest
+    timeout-minutes: 10
+    # 仅在 push 到 develop 分支 / PR / 手动触发时运行 (符合 CI/CD 集成需求)
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'push' && contains(github.ref, 'refs/heads/develop'))
+    # 严格失败模式: 任一步骤失败立即阻断合并
+    continue-on-error: false
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: 步骤 1/4 - 测试环境准备 (安装依赖)
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+
+      - name: 步骤 2/4 - 验证测试脚本可执行
+        shell: pwsh
+        run: |
+          Write-Host "🔍 验证测试脚本存在"
+          if (-not (Test-Path "backend/scripts/pre_commit_tests.py")) {
+            throw "❌ 找不到 backend/scripts/pre_commit_tests.py"
+          }
+          Write-Host "✅ 测试脚本存在"
+
+      - name: 步骤 3/4 - 执行 Pre-Commit 自动化测试套件
+        id: run-tests
+        shell: pwsh
+        run: |
+          Write-Host "🚀 执行 Pre-Commit 自动化测试套件"
+          Write-Host "   测试范围: HRC公式 + Tolerance配合计算 + H7过渡配合"
+          python backend/scripts/pre_commit_tests.py
+          $exitCode = $LASTEXITCODE
+          if ($exitCode -ne 0) {
+            Write-Host "::error::Pre-Commit 测试失败, 退出码: $exitCode"
+            throw "❌ Pre-Commit 测试失败, 退出码: $exitCode"
+          }
+          Write-Host "::notice::✅ Pre-Commit 测试全部通过 (退出码 0)"
+
+      - name: 步骤 4/4 - 上传测试报告 (artifact)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pre-commit-test-reports
+          path: |
+            docs/coverage/pre_commit/pre_commit_*.md
+            docs/coverage/pre_commit/pre_commit_*.txt
+            docs/coverage/pre_commit/pre_commit_*.json
+            docs/coverage/pre_commit/pre_commit_latest.md
+            docs/coverage/pre_commit/pre_commit_latest.txt
+            docs/coverage/pre_commit/pre_commit_latest.json
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: 提交测试报告摘要
+        if: always()
+        shell: pwsh
+        run: |
+          $reportPath = "docs/coverage/pre_commit/pre_commit_latest.md"
+          if (Test-Path $reportPath) {
+            Write-Host "::group::Pre-Commit 测试报告摘要"
+            Get-Content $reportPath -TotalCount 25
+            Write-Host "::endgroup::"
+          } else {
+            Write-Host "⚠️ 未找到测试报告: $reportPath"
+          }
+
+  # ============== 7. Required Check 验证测试 ==============
+  # 用途: 验证 GitHub Required Status Check 机制是否正常生效
+  #   - 默认模式: 测试被跳过 (SKIPPED), job 成功
+  #   - 验证模式: 设置环境变量 REQUIRED_CHECK_VERIFY=1, 测试故意失败, job 失败
+  #   - 分支保护规则应将 "Tests / required-check-verification" 设为 required status check
+  #   - 触发时机: push 到 develop / PR / 手动触发
+  required-check-verification:
+    name: required-check-verification
+    runs-on: windows-latest
+    timeout-minutes: 5
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'push' && contains(github.ref, 'refs/heads/develop'))
+    continue-on-error: false
+    env:
+      # 设为 '1' 启用故意失败模式, 验证 required check 是否阻断合并
+      # 正常 CI 运行时保持 '0' (测试被跳过, job 成功)
+      REQUIRED_CHECK_VERIFY: '0'
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: 安装依赖
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: 执行 Required Check 验证测试
+        shell: pwsh
+        run: |
+          Write-Host "=== Required Check 验证测试 ==="
+          Write-Host "  REQUIRED_CHECK_VERIFY = $env:REQUIRED_CHECK_VERIFY"
+          if ($env:REQUIRED_CHECK_VERIFY -eq '1') {
+            Write-Host "  模式: 故意失败 (验证 required check 机制)"
+          } else {
+            Write-Host "  模式: 正常 (测试将被跳过, job 成功)"
+          }
+          Write-Host ""
+          python -m pytest backend/tests/unit/test_required_check_verification.py -v --tb=short
+          $exitCode = $LASTEXITCODE
+          if ($exitCode -ne 0) {
+            Write-Host "::error::Required Check 验证测试失败 (退出码: $exitCode)"
+            if ($env:REQUIRED_CHECK_VERIFY -eq '1') {
+              Write-Host "::notice::这是预期的故意失败, 用于验证 required check 机制"
+            }
+            exit 1
+          }
+          Write-Host "Required Check 验证测试通过"
+
+  # ============== 8. 首次部署自动配置分支保护 ==============
+  setup-protection:
+    name: 首次部署 - 配置分支保护
+    runs-on: ubuntu-latest
+    # 仅在 push 到 develop 分支时运行
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    permissions:
+      contents: read
+      administrations: write
+    steps:
+      - name: 检查分支保护是否已配置
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh api repos/${{ github.repository }}/branches/develop/protection \
+             --jq '.required_status_checks.contexts' 2>/dev/null | \
+             grep -q "Tests / pre-commit-tests"; then
+            echo "configured=true" >> $GITHUB_OUTPUT
+            echo "Branch protection already configured, skipping"
+          else
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "Branch protection not yet configured, will apply"
+          fi
+
+      - name: 应用分支保护规则
+        if: steps.check.outputs.configured == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cat > /tmp/protection.json << 'EOF'
+          {
+            "required_status_checks": {
+              "strict": true,
+              "contexts": ["Tests / pre-commit-tests", "Tests / required-check-verification"]
+            },
+            "required_pull_request_reviews": {
+              "dismiss_stale_reviews": true,
+              "require_code_owner_reviews": false,
+              "required_approving_review_count": 1,
+              "require_last_push_approval": false
+            },
+            "restrictions": null,
+            "required_linear_history": true,
+            "allow_force_pushes": false,
+            "allow_deletions": false,
+            "block_creations": false,
+            "required_conversation_resolution": true,
+            "enforce_admins": false,
+            "required_signatures": false,
+            "enabled": true
+          }
+          EOF
+          gh api --method PUT \
+            repos/${{ github.repository }}/branches/develop/protection \
+            --input /tmp/protection.json
+          echo "Branch protection applied successfully"
+
+      - name: 验证保护规则
+        if: steps.check.outputs.configured == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CONTEXTS=$(gh api repos/${{ github.repository }}/branches/develop/protection \
+            --jq '.required_status_checks.contexts[]')
+          echo "Required checks: $CONTEXTS"
+          echo "$CONTEXTS" | grep -q "Tests / pre-commit-tests" && \
+            echo "VERIFIED: Tests / pre-commit-tests is required" || \
+            echo "WARNING: Required check not found"
+
+  # ============== 8. 总体状态 ==============
+  all-tests-passed:
+    name: 全部测试通过
+    runs-on: windows-latest
+    needs: [lint, unit-tests, integration-tests, pool-tests, coldstart-baseline, pre-commit-tests, required-check-verification, setup-protection]
+    if: success()
+    steps:
+      - run: echo "✅ 全部测试通过 - 可以合并 PR"

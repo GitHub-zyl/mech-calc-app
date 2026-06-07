@@ -30,12 +30,23 @@ Thumbs.db
 # 项目特定
 data/history.db
 data/history.db-journal
+data/test_history.db
 *.log
 build/
 dist/
 !build/.gitkeep
 !dist/.gitkeep
 
+# 临时测试报告和数据
+coldstart_*.json
+concurrent_*.json
+lock_contention_*.json
+coverage_*.json
+coverage_analysis_report.txt
+commit_msg.txt
+_tmp_*.ps1
+
 # 临时文件
 *.tmp
 *.bak
+.coveragerc

@@ -8,6 +8,13 @@
 - 提供 list / get / add / delete / count / clear / stats 全套 CRUD
 - 所有数据写入操作均带有结构化日志 (写入前/写入后 + 耗时)
 
+v2.3.0 起增加连接池 (方案 B: Connection Pool):
+- 默认短连接 (向后兼容), 通过 ENABLE_CONN_POOL=1 启用
+- 池大小可配 (默认 5), LIFO 策略 (提高缓存命中率)
+- 归还连接时执行健康检查 (SELECT 1), 损坏连接自动重建
+- 池空时降级到新建连接 (不阻塞业务)
+- 启动时预创建全部连接, 应用退出时统一关闭
+
 Schema:
     calc_history (
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,6 +34,8 @@ Schema:
 """
 import json
 import logging
+import os
+import queue
 import sqlite3
 import threading
 import time
@@ -98,27 +107,268 @@ _db_path: Optional[Path] = None
 _initialized: bool = False
 
 
+# ============== 连接池 (方案 B) ==============
+# 通过环境变量控制, 保持向后兼容
+ENABLE_CONN_POOL = os.getenv('ENABLE_CONN_POOL', '0') == '1'
+POOL_SIZE = int(os.getenv('CONN_POOL_SIZE', '5'))  # 池大小
+POOL_GET_TIMEOUT = float(os.getenv('CONN_POOL_TIMEOUT', '5.0'))  # 获取连接超时 (秒)
+
+# LIFO 池 (LIFO 策略: 后进先出, 提高热点连接的缓存命中率)
+_pool: "queue.LifoQueue[sqlite3.Connection]" = queue.LifoQueue(maxsize=POOL_SIZE)
+_pool_lock = threading.Lock()
+_pool_initialized: bool = False
+_pool_created_count: int = 0  # 已创建的连接数
+_pool_get_count: int = 0     # 获取连接次数
+_pool_hit_count: int = 0     # 命中次数
+_pool_fallback_count: int = 0  # 降级新建次数
+_pool_health_fail_count: int = 0  # 健康检查失败次数
+
+
+def _create_pooled_connection() -> sqlite3.Connection:
+    """创建一个池化连接, 已配置 PRAGMA."""
+    if _db_path is None:
+        raise RuntimeError("数据库未初始化, 请先调用 init_db()")
+    conn = sqlite3.connect(str(_db_path), timeout=10, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    # 复用 init_db 的 PRAGMA 设置
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
+    return conn
+
+
+def _health_check(conn: sqlite3.Connection) -> bool:
+    """验证连接是否可用. 失败则返回 False."""
+    try:
+        conn.execute("SELECT 1").fetchone()
+        return True
+    except (sqlite3.Error, Exception):
+        return False
+
+
+def init_pool(size: int = POOL_SIZE) -> None:
+    """初始化连接池 (应用启动时调用一次).
+
+    Args:
+        size: 池大小 (默认 5, 来自 CONN_POOL_SIZE 环境变量)
+
+    Raises:
+        RuntimeError: 数据库未初始化
+    """
+    global _pool_initialized, _pool_created_count, POOL_SIZE, _pool
+    if _db_path is None:
+        raise RuntimeError("数据库未初始化, 请先调用 init_db()")
+
+    with _pool_lock:
+        # 幂等性: 已初始化则跳过, 保持原池大小
+        if _pool_initialized:
+            _logger.info(
+                f"[POOL-SKIP] 连接池已初始化 (size={POOL_SIZE}), "
+                f"忽略新 size={size}"
+            )
+            return
+
+        # 调整池大小
+        if size != POOL_SIZE:
+            POOL_SIZE = size
+            # 重建 pool 以支持新 maxsize (queue.LifoQueue 不支持动态调整 maxsize)
+            _pool = queue.LifoQueue(maxsize=POOL_SIZE)
+
+        start = time.perf_counter()
+        # 预创建全部连接
+        for i in range(POOL_SIZE):
+            try:
+                conn = _create_pooled_connection()
+                _pool.put(conn)
+                _pool_created_count += 1
+            except Exception as e:
+                _logger.warning(f"[POOL-FAIL] 创建连接 #{i} 失败: {e}")
+
+        _pool_initialized = True
+        elapsed_ms = (time.perf_counter() - start) * 1000
+        _logger.info(
+            f"[POOL-INIT] 连接池初始化完成: size={POOL_SIZE} "
+            f"created={_pool_created_count} elapsed={elapsed_ms:.3f}ms"
+        )
+
+
+@contextmanager
+def get_pooled_connection():
+    """从池中获取连接 (上下文管理器).
+
+    行为:
+        1. 尝试从池中获取 (LIFO, 带超时)
+        2. 健康检查 (SELECT 1)
+        3. 失败时新建连接
+        4. 归还时通过 _return_to_pool 放回池
+
+    监控指标:
+        - _pool_get_count: 总获取次数
+        - _pool_hit_count: 命中池的次数
+        - _pool_fallback_count: 降级到新建的次数
+        - _pool_health_fail_count: 健康检查失败次数
+    """
+    global _pool_get_count, _pool_hit_count, _pool_fallback_count, _pool_health_fail_count
+    _pool_get_count += 1
+
+    conn = None
+    from_pool = False
+    try:
+        if _pool_initialized:
+            try:
+                conn = _pool.get(timeout=POOL_GET_TIMEOUT)
+                from_pool = True
+                _pool_hit_count += 1
+                # 健康检查
+                if not _health_check(conn):
+                    _pool_health_fail_count += 1
+                    _logger.warning("[POOL-HEALTH] 健康检查失败, 创建新连接")
+                    try:
+                        conn.close()
+                    except Exception:
+                        pass
+                    conn = _create_pooled_connection()
+                    from_pool = False
+                    _pool_fallback_count += 1
+            except queue.Empty:
+                # 池空 (超时), 降级到新建
+                _pool_fallback_count += 1
+                _logger.debug("[POOL-FALLBACK] 池空, 新建连接")
+                conn = _create_pooled_connection()
+        else:
+            # 池未初始化, 降级到普通连接
+            _pool_fallback_count += 1
+            conn = _create_pooled_connection()
+
+        yield conn
+        # 业务代码无异常, 提交
+        conn.commit()
+    except Exception:
+        # 业务代码异常, 回滚
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        raise
+    finally:
+        # 归还连接
+        if conn is not None:
+            if _pool_initialized and from_pool and _health_check(conn):
+                # 健康: 放回池
+                try:
+                    _pool.put_nowait(conn)
+                except queue.Full:
+                    # 池满 (理论上不会发生), 关闭
+                    try:
+                        conn.close()
+                    except Exception:
+                        pass
+            else:
+                # 不健康或非池连接: 关闭
+                try:
+                    conn.close()
+                except Exception:
+                    pass
+
+
+def close_pool() -> None:
+    """关闭连接池 (应用退出时调用)."""
+    global _pool_initialized
+    with _pool_lock:
+        if not _pool_initialized:
+            return
+        closed = 0
+        while True:
+            try:
+                conn = _pool.get_nowait()
+                try:
+                    conn.close()
+                    closed += 1
+                except Exception:
+                    pass
+            except queue.Empty:
+                break
+        _pool_initialized = False
+        # 安全日志: 避免在 pytest / 解释器关闭时 stdout 已关闭引发 I/O 错误
+        # logging 库内部会调用 handler.emit, stream 关闭时会 ValueError
+        # 通过禁用错误传播 + 检查 stream 状态避免污染退出日志
+        for handler in _logger.handlers[:]:
+            stream = getattr(handler, 'stream', None)
+            if stream is None or (hasattr(stream, 'closed') and stream.closed):
+                _logger.removeHandler(handler)
+
+
+def get_pool_stats() -> Dict[str, Any]:
+    """获取连接池监控指标."""
+    total = _pool_get_count or 1  # 避免除零
+    return {
+        'enabled': _pool_initialized,
+        'size': POOL_SIZE,
+        'qsize': _pool.qsize(),
+        'created': _pool_created_count,
+        'get_count': _pool_get_count,
+        'hit_count': _pool_hit_count,
+        'hit_rate': round(_pool_hit_count / total * 100, 2),
+        'fallback_count': _pool_fallback_count,
+        'fallback_rate': round(_pool_fallback_count / total * 100, 2),
+        'health_fail_count': _pool_health_fail_count,
+    }
+
+
 def init_db(db_path: str | Path) -> Path:
-    """初始化数据库. 多次调用是幂等的."""
+    """初始化数据库. 多次调用是幂等的.
+
+    关键: 重新初始化时 (db_path 变化), 必须先关闭旧池, 避免池中旧连接仍指向
+    旧 DB 文件, 导致 schema 写入错误位置.
+    """
     global _db_path, _initialized
     start = _log_write_start('init_db', db_path=str(db_path))
     p = Path(db_path)
     p.parent.mkdir(parents=True, exist_ok=True)
     with _lock:
+        # 检测 DB 路径变化: 若已启用池且路径不同, 关闭旧池
+        if ENABLE_CONN_POOL and _pool_initialized and _db_path is not None and _db_path != p:
+            _logger.info(
+                f"[POOL-CLOSE-BEFORE-INIT] DB 路径变化 ({_db_path} -> {p}), "
+                f"关闭旧池"
+            )
+            close_pool()
+
         _db_path = p
-        with _connect() as conn:
+        # 使用短连接执行 schema 初始化 (避免从池中拿到指向旧 DB 的连接)
+        conn = sqlite3.connect(str(p), timeout=10)
+        conn.row_factory = sqlite3.Row
+        try:
             conn.executescript(_SCHEMA)
             # 启用 WAL 模式提升并发
             conn.execute("PRAGMA journal_mode=WAL")
             conn.execute("PRAGMA synchronous=NORMAL")
+            conn.commit()
+        finally:
+            conn.close()
         _initialized = True
     _log_write_end('init_db', start, path=str(p), initialized=True)
+
+    # 方案 B: 如果启用了连接池, 自动初始化
+    if ENABLE_CONN_POOL:
+        init_pool(POOL_SIZE)
+
     return p
 
 
 @contextmanager
 def _connect():
-    """获取连接 (短连接模式, 简单可靠)."""
+    """获取连接.
+
+    行为:
+        - 启用池 (ENABLE_CONN_POOL=1): 使用 get_pooled_connection()
+        - 默认 (短连接): 每次新建连接
+    """
+    if ENABLE_CONN_POOL and _pool_initialized:
+        with get_pooled_connection() as conn:
+            yield conn
+        return
+
+    # 短连接模式 (默认, 向后兼容)
     if _db_path is None:
         raise RuntimeError("数据库未初始化, 请先调用 init_db()")
     conn = sqlite3.connect(str(_db_path), timeout=10)

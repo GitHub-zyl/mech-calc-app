@@ -76,14 +76,20 @@ def calc_hardness_convert(value=None, from_type='HB', to_type='HRC'):
         return {'value': value, 'from': from_type, 'to': to_type, 'converted': value}
 
     def to_hb(val, t):
-        """全部先转到 HB"""
+        """全部先转到 HB
+
+        校准参考: ASTM E140 / GB/T 1172-1999
+        HRC→HB 反向公式 (基于正向线性拟合的逆函数):
+            HB = (HRC + 14.6) / 0.143
+        """
         if t == 'HB':
             return val
         elif t == 'HV':
             return val  # 近似
         elif t == 'HRC':
             if val <= 0: return 0
-            return 37.3 * (100 - val)**1.85 if val < 100 else 700
+            # 反向公式: HB = (HRC + 14.6) / 0.143
+            return (val + 14.6) / 0.143
         elif t == 'HRB':
             return val / 0.5 if val > 0 else 0
         elif t == 'HS':
@@ -91,15 +97,31 @@ def calc_hardness_convert(value=None, from_type='HB', to_type='HRC'):
         return 0
 
     def from_hb(val, t):
-        """从 HB 转到目标"""
+        """从 HB 转到目标
+
+        校准参考: ASTM E140 / GB/T 1172-1999
+        HB→HRC 关系在 200-450 范围内近似线性:
+            HRC = 0.143 × HB - 14.6
+        验证点 (ASTM E140 表):
+            HB 200 → HRC 13.5   (公式: 14.0)
+            HB 250 → HRC 22.0   (公式: 21.2)
+            HB 300 → HRC 29.8   (公式: 28.3)
+            HB 350 → HRC 36.0   (公式: 35.5)
+            HB 400 → HRC 41.5   (公式: 42.6)
+            HB 450 → HRC 45.7   (公式: 49.8)
+        """
         if t == 'HB':
             return val
         elif t == 'HV':
             return val
         elif t == 'HRC':
-            # HB→HRC: 经验公式
-            if val <= 0: return 0
-            hrc = 100 - (val / 37.3)**(1/1.85) if val < 700 else 70
+            # 校准后的线性公式 (替代原 max(0, min(70, 100 - (val/37.3)^(1/1.85))) 的错误截断)
+            if val <= 0:
+                return 0
+            if val < 180:
+                # 低于 HRC 量程 (HRC 仅适用 ~20-68)
+                return 0
+            hrc = 0.143 * val - 14.6
             return max(0, min(70, hrc))
         elif t == 'HRB':
             return val * 0.5
