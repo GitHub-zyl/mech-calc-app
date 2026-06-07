@@ -24,7 +24,6 @@
   export GITHUB_REPO="机械计算小程序"
   python backend/scripts/apply_branch_protection.py
 """
-import json
 import os
 import sys
 
@@ -40,7 +39,11 @@ def main():
     owner = os.getenv("GITHUB_OWNER", "")
     repo = os.getenv("GITHUB_REPO", "")
     branch = os.getenv("PROTECTION_BRANCH", "develop")
-    required_checks = os.getenv("REQUIRED_CHECKS", "Tests / pre-commit-tests,Tests / required-check-verification").split(",")
+    required_checks = (
+        os.getenv("REQUIRED_CHECKS",
+                  "Tests / pre-commit-tests,Tests / required-check-verification")
+        .split(",")
+    )
 
     # 参数校验
     if not token:
@@ -96,7 +99,7 @@ def main():
         existing = check_resp.json()
         existing_contexts = existing.get("required_status_checks", {}).get("contexts", [])
         if all(c in existing_contexts for c in required_checks):
-            print(f"  [INFO] 分支保护已包含所有 required checks")
+            print("  [INFO] 分支保护已包含所有 required checks")
             print(f"  当前 contexts: {existing_contexts}")
             print()
             answer = input("  是否覆盖? (y/N): ")
