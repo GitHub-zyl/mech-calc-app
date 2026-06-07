@@ -376,9 +376,11 @@ jobs:
     runs-on: ubuntu-latest
     # 仅在 push 到 develop 分支时运行
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    # 分支保护 API 需要 repo admin 权限
+    # 需要在仓库 Settings > Actions > General > Workflow permissions 中设为 "Read and write"
     permissions:
       contents: read
-      administration: write
+      statuses: write
     steps:
       - name: 检查分支保护是否已配置
         id: check
