@@ -10,21 +10,21 @@ from backend.utils.convert import safe_float
 from backend.calculations.tolerance import (
     shaft_tolerance, hole_tolerance, fit_calculation,
 )
-from backend.calculations.surface import (
+from backend.calculations.surface import (  # noqa: F401
     calc_roughness_convert, calc_hardness_convert, calc_surface_texture,
 )
 from backend.calculations.spring import (
     coil_spring_compression, coil_spring_tension,
     coil_spring_stress, spring_deflection,
 )
-from backend.calculations.press import (
+from backend.calculations.press import (  # noqa: F401
     blanking_force, stripping_force, v_bending_force,
     embossing_force, shear_force,
 )
-from backend.calculations.brake import (
+from backend.calculations.brake import (  # noqa: F401
     calc_disc_brake_torque, calc_band_brake_torque, calc_clutch_energy,
 )
-from backend.calculations.coupling import (
+from backend.calculations.coupling import (  # noqa: F401
     coupling_gear_torque, coupling_universal, oring_groove,
 )
 
