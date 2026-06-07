@@ -15,7 +15,7 @@ from backend.database import (
     add_record, get_record, list_records, delete_record,
     delete_records, count_records, stats_by_category, clear_all,
 )
-from backend.utils.convert import safe_float, safe_int
+from backend.utils.convert import safe_float
 
 bp = Blueprint('history', __name__, url_prefix='/api/history')
 
