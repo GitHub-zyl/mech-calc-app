@@ -117,7 +117,6 @@ def _parse_pytest_output(output: str, returncode: int) -> dict:
 
     # 1. 解析摘要行: 提取 "N passed" "N failed" "N skipped" "N error(s)" 和 "in X.XXs"
     for line in output.splitlines():
-        line_stripped = line.strip()
         # 仅匹配 pytest 摘要行 (含 in X.XXs 时间)
         m = re.search(r'\bin\s+([\d.]+)s', line)
         if m:
@@ -128,10 +127,10 @@ def _parse_pytest_output(output: str, returncode: int) -> dict:
 
         # 提取数字+关键字组合 (数字必须在关键字前)
         for key, pattern in [
-            ("passed",   r'(\d+)\s+passed'),
-            ("failed",   r'(\d+)\s+failed'),
-            ("skipped",  r'(\d+)\s+skipped'),
-            ("errors",   r'(\d+)\s+errors?'),
+            ("passed", r'(\d+)\s+passed'),  # noqa: E241
+            ("failed", r'(\d+)\s+failed'),  # noqa: E241
+            ("skipped", r'(\d+)\s+skipped'),  # noqa: E241
+            ("errors", r'(\d+)\s+errors?'),  # noqa: E241
         ]:
             m = re.search(pattern, line)
             if m:
@@ -140,7 +139,7 @@ def _parse_pytest_output(output: str, returncode: int) -> dict:
 
     result["total"] = (
         result["passed"] + result["failed"]
-        + result["skipped"] + result["errors"]
+        + result["skipped"] + result["errors"]  # noqa: W503
     )
 
     # 2. 提取失败详情
@@ -212,6 +211,11 @@ def run_pytest_suite(suite: dict) -> dict:
 
     env = os.environ.copy()
     env.setdefault("PYTHONIOENCODING", "utf-8")
+    # 将项目根目录加入 PYTHONPATH, 使 'from backend.xxx' 导入生效
+    project_root_str = str(PROJECT_ROOT)
+    existing_path = env.get("PYTHONPATH", "")
+    if project_root_str not in existing_path.split(os.pathsep):
+        env["PYTHONPATH"] = project_root_str + (os.pathsep + existing_path if existing_path else "")
 
     try:
         proc = subprocess.run(
@@ -307,7 +311,7 @@ def build_text_report(suite_results, total_elapsed, summary, env_info):
             lines.append(f"      跳过:       {s['skipped']}")
             lines.append(f"      错误:       {s['errors']}")
             if s['failure_details']:
-                lines.append(f"      失败详情 (前 5 条):")
+                lines.append("      失败详情 (前 5 条):")
                 for fd in s['failure_details'][:5]:
                     lines.append(f"        - {fd['line']}")
         else:
@@ -329,7 +333,7 @@ def build_text_report(suite_results, total_elapsed, summary, env_info):
     lines.append("=" * 78)
     if summary['block_commit']:
         lines.append(f"  存在 {summary['failed_cases']} 个失败用例.")
-        lines.append(f"  阻断 commit, 请修复后重试.")
+        lines.append("  阻断 commit, 请修复后重试.")
         lines.append("")
         lines.append("  修复建议:")
         lines.append("    1. 查看失败用例详情, 定位根因")
@@ -407,18 +411,18 @@ def build_markdown_report(suite_results, total_elapsed, summary, env_info):
         for rec in suite_results:
             if rec.get('error'):
                 md.append(f"### {rec['name']} - 执行错误")
-                md.append(f"```")
+                md.append("```")
                 md.append(rec['error'])
-                md.append(f"```")
+                md.append("```")
                 md.append("")
 
             for fd in rec.get('summary', {}).get('failure_details', []):
                 md.append(f"### {rec['name']} - 失败用例")
-                md.append(f"```")
+                md.append("```")
                 md.append(fd.get('line', ''))
                 for ctx in fd.get('context', [])[:10]:
                     md.append(ctx)
-                md.append(f"```")
+                md.append("```")
                 md.append("")
 
     return "\n".join(md)
@@ -481,8 +485,8 @@ def main() -> int:
     passed_suites = sum(
         1 for r in suite_results
         if r['summary'].get('failed', 0) == 0
-        and r['summary'].get('errors', 0) == 0
-        and not r.get('error')
+        and r['summary'].get('errors', 0) == 0  # noqa: W503
+        and not r.get('error')  # noqa: W503
     )
     failed_suites = len(suite_results) - passed_suites
     block_commit = failed_suites > 0
@@ -545,7 +549,7 @@ def main() -> int:
         encoding="utf-8",
     )
 
-    print(f"  报告已生成:")
+    print("  报告已生成:")
     print(f"    文本:   {txt_path}")
     print(f"    Markdown: {md_path}")
     print(f"    JSON:  {json_path}")
