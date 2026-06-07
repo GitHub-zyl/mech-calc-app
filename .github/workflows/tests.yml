@@ -34,6 +34,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install flake8 pytest-cov
+          pip install -r requirements.txt
 
       - name: flake8 检查
         run: |
@@ -274,6 +275,8 @@ jobs:
       - name: 步骤 3/4 - 执行 Pre-Commit 自动化测试套件
         id: run-tests
         shell: pwsh
+        env:
+          PYTHONIOENCODING: utf-8
         run: |
           Write-Host "🚀 执行 Pre-Commit 自动化测试套件"
           Write-Host "   测试范围: HRC公式 + Tolerance配合计算 + H7过渡配合"
