@@ -67,6 +67,14 @@ TEST_SUITES = [
         "runner": "python",  # 独立脚本
         "category": "integration",
     },
+    {
+        "name": "分支保护验证 (故意失败)",
+        "path": "tests/unit/test_branch_protection_verify.py",
+        "description": "故意失败的测试, 用于验证 required status check 阻断合并",
+        "block_on_fail": True,
+        "runner": "pytest",
+        "category": "unit",
+    },
 ]
 
 # 报告输出目录
