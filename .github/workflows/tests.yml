@@ -371,21 +371,49 @@ jobs:
           Write-Host "Required Check 验证测试通过"
 
   # ============== 8. 首次部署自动配置分支保护 ==============
+  # 分支保护 API 需要 repo admin 权限, GITHUB_TOKEN 无此权限
+  # 需要创建 PAT (Personal Access Token) 并存储为 ADMIN_TOKEN secret
+  #
+  # PAT 创建步骤:
+  #   1. GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens
+  #   2. Token name: "CI Branch Protection"
+  #   3. Expiration: 按需设置 (建议 90 天)
+  #   4. Repository access: Only select repositories → 选择本仓库
+  #   5. Permissions: Repository permissions → Administration: Read and write
+  #   6. 生成 token 并复制
+  #   7. 仓库 → Settings → Secrets and variables → Actions → New repository secret
+  #      Name: ADMIN_TOKEN, Value: 粘贴 token
+  #
+  # 备选方案 (Classic PAT):
+  #   1. GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+  #   2. 勾选 scope: repo (Full control of private repositories)
+  #   3. 生成并存储为 ADMIN_TOKEN secret
   setup-protection:
     name: 首次部署 - 配置分支保护
     runs-on: ubuntu-latest
     # 仅在 push 到 develop 分支时运行
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-    # 分支保护 API 需要 repo admin 权限
-    # 需要在仓库 Settings > Actions > General > Workflow permissions 中设为 "Read and write"
+    # 使用 PAT 而非 GITHUB_TOKEN, 因为分支保护 API 需要 admin 权限
     permissions:
       contents: read
-      statuses: write
     steps:
+      - name: 检查 ADMIN_TOKEN 是否已配置
+        id: check-token
+        run: |
+          if [ -n "${{ secrets.ADMIN_TOKEN }}" ]; then
+            echo "has_token=true" >> $GITHUB_OUTPUT
+            echo "ADMIN_TOKEN is configured"
+          else
+            echo "has_token=false" >> $GITHUB_OUTPUT
+            echo "::warning::ADMIN_TOKEN secret not configured. Branch protection will not be auto-applied."
+            echo "::notice::To enable auto branch protection, create a PAT with admin permissions and add it as ADMIN_TOKEN secret."
+          fi
+
       - name: 检查分支保护是否已配置
+        if: steps.check-token.outputs.has_token == 'true'
         id: check
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.ADMIN_TOKEN }}
         run: |
           if gh api repos/${{ github.repository }}/branches/develop/protection \
              --jq '.required_status_checks.contexts' 2>/dev/null | \
@@ -398,9 +426,9 @@ jobs:
           fi
 
       - name: 应用分支保护规则
-        if: steps.check.outputs.configured == 'false'
+        if: steps.check-token.outputs.has_token == 'true' && steps.check.outputs.configured == 'false'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.ADMIN_TOKEN }}
         run: |
           cat > /tmp/protection.json << 'EOF'
           {
@@ -431,9 +459,9 @@ jobs:
           echo "Branch protection applied successfully"
 
       - name: 验证保护规则
-        if: steps.check.outputs.configured == 'false'
+        if: steps.check-token.outputs.has_token == 'true' && steps.check.outputs.configured == 'false'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.ADMIN_TOKEN }}
         run: |
           CONTEXTS=$(gh api repos/${{ github.repository }}/branches/develop/protection \
             --jq '.required_status_checks.contexts[]')
