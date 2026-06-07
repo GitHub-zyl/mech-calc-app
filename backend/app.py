@@ -25,22 +25,22 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_PROJECT_ROOT))
 sys.path.insert(0, str(Path(__file__).parent))
 
-from flask import Flask
+from flask import Flask  # noqa: E402
 
-from backend.config import Config, TestConfig
-from backend.api.errors import register_error_handlers
-from backend.api.meta import bp as meta_bp
-from backend.api.data import bp as data_bp
-from backend.api.units import bp as units_bp
-from backend.api.calculations.transmission import bp as transmission_bp
-from backend.api.calculations.shaft_system import bp as shaft_system_bp
-from backend.api.calculations.fasteners import bp as fasteners_bp
-from backend.api.calculations.fluid import bp as fluid_bp
-from backend.api.calculations.misc import bp as misc_bp
-from backend.api.compat import bp as compat_bp
-from backend.api.history import bp as history_bp
-from backend.api.formulas import bp as formulas_bp
-from backend.api.p2_reference import bp as p2_reference_bp
+from backend.config import Config, TestConfig  # noqa: E402
+from backend.api.errors import register_error_handlers  # noqa: E402
+from backend.api.meta import bp as meta_bp  # noqa: E402
+from backend.api.data import bp as data_bp  # noqa: E402
+from backend.api.units import bp as units_bp  # noqa: E402
+from backend.api.calculations.transmission import bp as transmission_bp  # noqa: E402
+from backend.api.calculations.shaft_system import bp as shaft_system_bp  # noqa: E402
+from backend.api.calculations.fasteners import bp as fasteners_bp  # noqa: E402
+from backend.api.calculations.fluid import bp as fluid_bp  # noqa: E402
+from backend.api.calculations.misc import bp as misc_bp  # noqa: E402
+from backend.api.compat import bp as compat_bp  # noqa: E402
+from backend.api.history import bp as history_bp  # noqa: E402
+from backend.api.formulas import bp as formulas_bp  # noqa: E402
+from backend.api.p2_reference import bp as p2_reference_bp  # noqa: E402
 
 
 # ============== 冷启动优化 (方案 A: 数据库预热) ==============
@@ -204,6 +204,7 @@ def create_app(testing=False):
             pass
 
         import atexit
+
         def _close_pool_on_exit():
             from backend.database import history_db
             history_db.close_pool()
@@ -247,7 +248,6 @@ def create_app(testing=False):
     @app.route('/data/<path:filename>')
     def serve_data(filename):
         from backend.api.responses import error
-        from flask import jsonify
         data_dir = Path(__file__).parent.parent / 'data'
         filepath = (data_dir / filename).resolve()
         # 防止路径遍历: 验证解析后的路径仍在 data_dir 内
