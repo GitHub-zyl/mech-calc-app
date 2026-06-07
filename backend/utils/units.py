@@ -125,6 +125,7 @@ UNIT_CATEGORIES = {
     'viscosity': ('黏度', VISCOSITY, 'Pa·s'),
 }
 
+
 def convert(value, from_unit, to_unit, unit_map):
     if from_unit not in unit_map or to_unit not in unit_map:
         return None
@@ -188,7 +189,8 @@ def convert_all(value, from_unit, to_unit, category):
 # ============ 便捷函数 ============
 
 def format_value(v, decimals=4):
-    if v is None: return '-'
+    if v is None:
+        return '-'
     if isinstance(v, float):
         return f"{v:.{decimals}f}".rstrip('0').rstrip('.')
     return str(v)
